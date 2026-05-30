@@ -35,7 +35,8 @@
   <a href="https://NullLabTests.github.io/ouroboros-evolved-v1/health.html"><b>📊 Health Dashboard</b></a> ·
   <a href="https://NullLabTests.github.io/ouroboros-evolved-v1/dashboard.html"><b>📈 Evolution</b></a> ·
   <a href="docs/principles.svg"><b>📜 Principles</b></a> ·
-  <a href="docs/consciousness_flow.svg"><b>🌀 Consciousness</b></a>
+  <a href="docs/consciousness_flow.svg"><b>🌀 Consciousness</b></a> ·
+  <a href="mind.html"><b>🧠 Living Mind</b></a>
 </p>
 
 ---

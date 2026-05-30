@@ -128,7 +128,7 @@ EXPECTED_TOOLS = [
     # Visual generation
     "generate_system_portrait", "generate_goal_progress_chart",
     "generate_health_dashboard", "generate_dynamic_badge",
-    "generate_all_visuals",
+    "generate_all_visuals", "generate_mind_visualization",
 ]
 
 

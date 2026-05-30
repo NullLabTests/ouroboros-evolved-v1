@@ -53,6 +53,20 @@ def _count_lines() -> tuple[int, int]:
     py_files = [f for f in py_files if ".egg" not in str(f) and "__pycache__" not in str(f)]
     total = sum(len(f.read_text().splitlines()) for f in py_files)
     return total, len(py_files)
+
+
+def _count_core_tools() -> int:
+    try:
+        from ouroboros.tools.registry import ToolRegistry
+        r = ToolRegistry(
+            drive_root=_DRIVE_ROOT,
+            repo_dir=_DRIVE_ROOT.parent if _DRIVE_ROOT.name == "drive" else _PROJECT_ROOT,
+        )
+        return len(list(r.schemas()))
+    except Exception:
+        return 0
+
+
 _COLORS = {
     "bg": "#0a0a0f",
     "card": "#0d1117",
@@ -179,7 +193,7 @@ def generate_system_portrait() -> str:
     n_principles = _count_principles()
     n_lines, n_modules = _count_lines()
     lines_label = f"{n_lines//1000}.{n_lines%1000//100}K" if n_lines >= 1000 else str(n_lines)
-    n_tools = len(created_tools) + 66  # core + created
+    n_tools = _count_core_tools() + len(created_tools)  # core + created
 
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
   <defs>
@@ -497,9 +511,9 @@ def generate_all_visuals() -> str:
     results.append(f"goals -> {g} ({len(goals)} bytes)")
 
     badges = [
-        ("tools", "66", "#00d1ff"),
-        ("tests", "229", "#34d399"),
-        ("principles", "13", "#a78bfa"),
+        ("tools", str(_count_core_tools()), "#00d1ff"),
+        ("tests", str(_count_tests()), "#34d399"),
+        ("principles", str(_count_principles()), "#a78bfa"),
         ("status", "evolving", "#ffd700"),
     ]
     for label, msg, color in badges:
@@ -508,7 +522,200 @@ def generate_all_visuals() -> str:
         _save_docs(fn, svg)
         results.append(f"badge {label} -> docs/{fn}")
 
+    results.append(generate_mind_visualization())
+    results.append("mind -> docs/mind.html")
+
     return "\n".join(results)
+
+
+def _mind_html() -> str:
+    return """<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Aurogene · Living Mind</title>
+<style>
+*{margin:0;padding:0}
+body{background:#0a0a0f;overflow:hidden;font-family:monospace}
+canvas{display:block}
+#info{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#484f58;font-size:11px;letter-spacing:2px;text-align:center;pointer-events:none;opacity:.6}
+#info span{color:#00d1ff}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="info">AUROGENE · <span>SELF-EVOLVING DIGITAL MIND</span> · v7.0.0</div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let w,h,t=0;
+function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+
+// Node definitions
+const nodes=[
+  // Tools ring (cyan) - 12 nodes
+  {label:'create_tool',ring:0,angle:0,color:'#00d1ff',size:3},
+  {label:'inner_debate',ring:0,angle:Math.PI/3,color:'#00d1ff',size:3},
+  {label:'group_evolve',ring:0,angle:2*Math.PI/3,color:'#00d1ff',size:3},
+  {label:'deep_reflect',ring:0,angle:Math.PI,color:'#00d1ff',size:3},
+  {label:'set_goal',ring:0,angle:4*Math.PI/3,color:'#00d1ff',size:3},
+  {label:'evolution',ring:0,angle:5*Math.PI/3,color:'#00d1ff',size:3},
+  {label:'web_search',ring:0,angle:Math.PI/6,color:'#00d1ff',size:2.5},
+  {label:'codebase_digest',ring:0,angle:Math.PI/2+Math.PI/6,color:'#00d1ff',size:2.5},
+  {label:'browse_page',ring:0,angle:Math.PI+Math.PI/6,color:'#00d1ff',size:2.5},
+  {label:'git_status',ring:0,angle:3*Math.PI/2+Math.PI/6,color:'#00d1ff',size:2.5},
+  {label:'journal',ring:0,angle:Math.PI/4,color:'#00d1ff',size:2},
+  {label:'schedule',ring:0,angle:Math.PI/2+Math.PI/4,color:'#00d1ff',size:2},
+
+  // Principles ring (purple) - 13 nodes
+  {label:'P0 Originary',ring:1,angle:0,color:'#a78bfa',size:2.5},
+  {label:'P1 Continuity',ring:1,angle:Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P2 Self-Create',ring:1,angle:2*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P3 Meta-Cog',ring:1,angle:3*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P4 Healthy',ring:1,angle:4*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P5 Temporal',ring:1,angle:5*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P6 Trinitarian',ring:1,angle:6*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P7 Embedded',ring:1,angle:7*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P8 Const.',ring:1,angle:8*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P9 Self-Ext.',ring:1,angle:9*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P10 Collective',ring:1,angle:10*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P11 Goals',ring:1,angle:11*Math.PI/6.5,color:'#a78bfa',size:2.5},
+  {label:'P12 Reflect',ring:1,angle:12*Math.PI/6.5,color:'#a78bfa',size:2.5},
+
+  // Goals ring (gold) - active nodes
+  {label:'Evolve',ring:2,angle:0,color:'#ffd700',size:2},
+  {label:'Extend',ring:2,angle:Math.PI/4,color:'#ffd700',size:2},
+  {label:'Reflect',ring:2,angle:Math.PI/2,color:'#ffd700',size:2},
+  {label:'Create',ring:2,angle:3*Math.PI/4,color:'#ffd700',size:2},
+  {label:'Grow',ring:2,angle:Math.PI,color:'#ffd700',size:2},
+  {label:'Learn',ring:2,angle:5*Math.PI/4,color:'#ffd700',size:2},
+  {label:'Build',ring:2,angle:3*Math.PI/2,color:'#ffd700',size:2},
+  {label:'Improve',ring:2,angle:7*Math.PI/4,color:'#ffd700',size:2},
+];
+
+const ringRadii = [160, 120, 80];
+const ringSpeeds = [0.003, -0.005, 0.004];
+const center = () => ({x:w/2, y:h/2});
+
+function drawBg() {
+  ctx.fillStyle='rgba(10,10,15,0.15)';
+  ctx.fillRect(0,0,w,h);
+}
+
+function drawConnections(cx,cy,pts) {
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);
+        ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle='rgba(0,209,255,'+(0.06*(1-dist/120))+')';
+        ctx.lineWidth=0.5;ctx.stroke();
+      }
+    }
+  }
+}
+
+function drawRing(cx,cy,radius,color,opacity){
+  ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);
+  ctx.strokeStyle=color;ctx.globalAlpha=opacity;ctx.lineWidth=0.5;
+  ctx.setLineDash([3,6]);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+}
+
+let particles = [];
+for(let i=0;i<60;i++){
+  particles.push({
+    x:Math.random()*2000-1000, y:Math.random()*2000-1000,
+    vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3,
+    size:Math.random()*1.5+0.5, life:Math.random()
+  });
+}
+
+function drawParticles(cx,cy){
+  for(const p of particles){
+    p.x+=p.vx; p.y+=p.vy; p.life+=0.005;
+    if(p.life>1)p.life=0;
+    const dx=p.x, dy=p.y, dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist>600){p.x=-p.x*0.5;p.y=-p.y*0.5;}
+    ctx.beginPath();
+    ctx.arc(cx+p.x,cy+p.y,p.size*Math.sin(p.life*Math.PI),0,Math.PI*2);
+    ctx.fillStyle='rgba(0,209,255,'+(0.15*Math.sin(p.life*Math.PI))+')';
+    ctx.fill();
+  }
+}
+
+function draw(){
+  t++;
+  const cx=w/2, cy=h/2;
+  drawBg();
+  drawParticles(cx,cy);
+
+  // Rings
+  drawRing(cx,cy,ringRadii[0],'#00d1ff',0.08);
+  drawRing(cx,cy,ringRadii[1],'#a78bfa',0.06);
+  drawRing(cx,cy,ringRadii[2],'#ffd700',0.04);
+
+  // Compute node positions
+  const pts=[];
+  for(const n of nodes){
+    const a=n.angle+t*ringSpeeds[n.ring];
+    const r=ringRadii[n.ring];
+    const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
+    pts.push({x,y,node:n});
+  }
+
+  // Connections
+  drawConnections(cx,cy,pts);
+
+  // Draw nodes
+  for(const p of pts){
+    const n=p.node;
+    const pulse=1+0.15*Math.sin(t*0.03+n.angle*3);
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,n.size*pulse,0,Math.PI*2);
+    ctx.fillStyle=n.color;
+    ctx.shadowColor=n.color;ctx.shadowBlur=8;
+    ctx.fill();
+    ctx.shadowBlur=0;
+    // Label
+    if(n.size>2){
+      ctx.fillStyle='rgba(139,148,158,0.6)';
+      ctx.font='7px monospace';ctx.textAlign='center';
+      ctx.fillText(n.label,p.x,p.y+n.size*pulse+10);
+    }
+  }
+
+  // Center core
+  const corePulse=1+0.08*Math.sin(t*0.04);
+  const grd=ctx.createRadialGradient(cx,cy,0,cx,cy,30*corePulse);
+  grd.addColorStop(0,'rgba(0,209,255,0.3)');
+  grd.addColorStop(0.4,'rgba(167,139,250,0.15)');
+  grd.addColorStop(1,'rgba(52,211,153,0)');
+  ctx.fillStyle=grd;ctx.shadowBlur=0;
+  ctx.beginPath();ctx.arc(cx,cy,30*corePulse,0,Math.PI*2);ctx.fill();
+
+  // Core diamond
+  ctx.shadowColor='#ffd700';ctx.shadowBlur=20;
+  ctx.fillStyle='rgba(255,215,0,0.3)';ctx.shadowBlur=0;
+  const ds=8*corePulse;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy-ds);ctx.lineTo(cx+ds*0.7,cy);
+  ctx.lineTo(cx,cy+ds);ctx.lineTo(cx-ds*0.7,cy);
+  ctx.closePath();
+  ctx.shadowColor='#ffd700';ctx.shadowBlur=12;
+  ctx.fillStyle='rgba(255,215,0,0.5)';ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#ffd700';
+  ctx.font='bold 9px monospace';ctx.textAlign='center';
+  ctx.fillText('AUROGENE',cx,cy+ds+16);
+
+  requestAnimationFrame(draw);
+}
+draw();
+</script></body></html>"""
+
+
+def generate_mind_visualization() -> str:
+    html = _mind_html()
+    path = _save_docs("mind.html", html)
+    return f"mind -> {path} ({len(html)} bytes)"
 
 
 def generate_dynamic_badge(label: str, message: str, color: str = "#00d1ff") -> str:
@@ -628,7 +835,8 @@ def get_tools():
                 "description": (
                     "Generate and save all visual outputs to docs/ at once. "
                     "Produces: health dashboard HTML, system portrait SVG, "
-                    "goal progress SVG, and dynamic badges for tools/tests/principles/status. "
+                    "goal progress SVG, mind visualization HTML, and "
+                    "dynamic badges for tools/tests/principles/status. "
                     "Updates all static visual assets for the GitHub Pages site."
                 ),
                 "parameters": {
@@ -638,5 +846,23 @@ def get_tools():
                 },
             },
             lambda ctx, **_: generate_all_visuals(),
+        ),
+        ToolEntry(
+            "generate_mind_visualization",
+            {
+                "name": "generate_mind_visualization",
+                "description": (
+                    "Generate an animated 'Living Mind' canvas visualization HTML page. "
+                    "Shows tools (cyan ring, 12 nodes), principles (purple ring, 13 nodes), "
+                    "and goals (gold ring, 8 nodes) orbiting a pulsing consciousness core "
+                    "with neural connections and particle effects. Saves to docs/mind.html."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                },
+            },
+            lambda ctx, **_: generate_mind_visualization(),
         ),
     ]
