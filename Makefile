@@ -13,10 +13,12 @@ test-v:
 
 # Run codebase health check (requires ouroboros importable)
 health:
-	python3 -c "from ouroboros.review import compute_complexity_metrics; \
+	python3 -c "from ouroboros.review import collect_sections, compute_complexity_metrics, format_metrics; \
 		import pathlib, json; \
-		m = compute_complexity_metrics(pathlib.Path('.')); \
-		print(json.dumps(m, indent=2, default=str))"
+		s, stats = collect_sections(pathlib.Path('.'), pathlib.Path('.')); \
+		m = compute_complexity_metrics(s); \
+		print(format_metrics(m)); \
+		print(json.dumps(stats, indent=2, default=str))"
 
 # Clean Python cache files
 clean:
