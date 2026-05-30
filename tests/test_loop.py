@@ -147,8 +147,9 @@ def test_make_timeout_result(temp_logs: pathlib.Path):
 # ---------------------------------------------------------------------------
 
 
-def test_check_budget_limits_none_budget():
+def test_check_budget_limits_none_budget(temp_logs):
     from ouroboros.loop import _check_budget_limits
+    import queue
     result = _check_budget_limits(
         budget_remaining_usd=None,
         accumulated_usage={},
@@ -158,16 +159,17 @@ def test_check_budget_limits_none_budget():
         active_model="test/model",
         active_effort="medium",
         max_retries=2,
-        drive_logs=MagicMock(),
+        drive_logs=temp_logs,
         task_id="test",
-        event_queue=None,
+        event_queue=queue.Queue(),
         llm_trace={"assistant_notes": []},
     )
-    assert result is None  # No budget configured, continue
+    assert result is None
 
 
-def test_check_budget_limits_under_threshold():
+def test_check_budget_limits_under_threshold(temp_logs):
     from ouroboros.loop import _check_budget_limits
+    import queue
     result = _check_budget_limits(
         budget_remaining_usd=10.0,
         accumulated_usage={"cost": 0.5},
@@ -177,28 +179,32 @@ def test_check_budget_limits_under_threshold():
         active_model="test/model",
         active_effort="medium",
         max_retries=2,
-        drive_logs=MagicMock(),
+        drive_logs=temp_logs,
         task_id="test",
-        event_queue=None,
+        event_queue=queue.Queue(),
         llm_trace={"assistant_notes": []},
     )
-    assert result is None  # Under threshold, continue
+    assert result is None
 
 
-def test_check_budget_limits_hard_stop():
+def test_check_budget_limits_hard_stop(temp_logs):
     from ouroboros.loop import _check_budget_limits
+    import queue
+    llm = MagicMock()
+    llm.chat.return_value = ({"content": "Budget exhausted."}, {})
+
     result = _check_budget_limits(
         budget_remaining_usd=10.0,
-        accumulated_usage={"cost": 6.0},  # >50% of remaining
+        accumulated_usage={"cost": 6.0},
         round_idx=1,
         messages=[{"role": "user", "content": "Hi"}],
-        llm=MagicMock(),
+        llm=llm,
         active_model="test/model",
         active_effort="medium",
         max_retries=1,
-        drive_logs=MagicMock(),
+        drive_logs=temp_logs,
         task_id="test",
-        event_queue=None,
+        event_queue=queue.Queue(),
         llm_trace={"assistant_notes": []},
     )
     assert result is not None
