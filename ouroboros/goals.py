@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import pathlib
+import uuid
 from dataclasses import dataclass, field, asdict
 from typing import Any, Dict, List, Optional
 
@@ -77,7 +78,6 @@ class GoalManager:
         milestones: Optional[List[str]] = None,
         parent_goal_id: Optional[str] = None,
     ) -> str:
-        import uuid
         goal_id = uuid.uuid4().hex[:12]
         now = utc_now_iso()
         goal = Goal(
@@ -115,9 +115,9 @@ class GoalManager:
             if priority in ("low", "medium", "high", "critical"):
                 goal.priority = priority
         if milestone_progress is not None:
-            goal.milestone_progress = max(0, min(len(goal.milestones) or 1, milestone_progress))
+            goal.milestone_progress = max(0, min(max(1, len(goal.milestones)), milestone_progress))
         if notes:
-            goal.notes = (goal.notes + "\n" + notes).strip()
+            goal.notes = (goal.notes + "\n" + notes).strip() if goal.notes else notes
         goal.updated_at = utc_now_iso()
         self._save()
         return True
@@ -127,6 +127,14 @@ class GoalManager:
 
     def get_goal(self, goal_id: str) -> Optional[Goal]:
         return self._goals.get(goal_id)
+
+    def delete_goal(self, goal_id: str) -> bool:
+        """Permanently remove a goal. Returns True if goal existed."""
+        if goal_id not in self._goals:
+            return False
+        del self._goals[goal_id]
+        self._save()
+        return True
 
     def list_goals(self, filter_status: Optional[str] = None) -> str:
         goals = self._goals.values()

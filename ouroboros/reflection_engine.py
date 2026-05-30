@@ -57,26 +57,23 @@ def contrastive_reflection(
     recent_tasks = _load_recent_tasks(drive_root, depth)
     recent_chat = mem.read_jsonl_tail("chat.jsonl", _depth_to_count(depth))
 
-    contradictions = _find_contradictions(
+    contradictions_text, contradictions_cost = _find_contradictions(
         identity_text, recent_journal, recent_tasks, recent_chat,
         active_model, llm,
     )
-    total_cost += contradictions[1] if isinstance(contradictions, tuple) else 0.0
-    contradictions_text = contradictions[0] if isinstance(contradictions, tuple) else contradictions
+    total_cost += contradictions_cost
 
-    patterns = _find_patterns(
+    patterns_text, patterns_cost = _find_patterns(
         recent_journal, recent_tasks, recent_chat,
         active_model, llm,
     )
-    total_cost += patterns[1] if isinstance(patterns, tuple) else 0.0
-    patterns_text = patterns[0] if isinstance(patterns, tuple) else patterns
+    total_cost += patterns_cost
 
-    consolidation = _consolidate(
+    consolidation_text, consolidation_cost = _consolidate(
         identity_text, contradictions_text, patterns_text,
         active_model, llm,
     )
-    total_cost += consolidation[1] if isinstance(consolidation, tuple) else 0.0
-    consolidation_text = consolidation[0] if isinstance(consolidation, tuple) else consolidation
+    total_cost += consolidation_cost
 
     reflection = _format_reflection(contradictions_text, patterns_text, consolidation_text)
     return reflection, round(total_cost, 6)

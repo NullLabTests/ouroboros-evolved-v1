@@ -94,7 +94,8 @@ CORE_TOOL_NAMES = {
     "inner_debate",
     "group_evolution_experiment",
     "deep_reflect",
-    "set_goal", "update_goal", "list_goals",
+    "set_goal", "update_goal", "list_goals", "delete_goal",
+    "propose_evolution", "run_evolution_cycle",
 }
 
 

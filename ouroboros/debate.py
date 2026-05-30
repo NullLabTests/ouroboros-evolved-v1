@@ -95,13 +95,8 @@ def debate(
             if content:
                 stance_arguments[stance] = content
 
-    synthesis = _synthesize(question, stance_arguments, active_model, llm)
-    syn_cost = float(synthesis[1]) if isinstance(synthesis, tuple) else 0.0
-    if isinstance(synthesis, tuple):
-        synthesis_text = synthesis[0]
-        total_cost += syn_cost
-    else:
-        synthesis_text = synthesis
+    synthesis_text, syn_cost = _synthesize(question, stance_arguments, active_model, llm)
+    total_cost += syn_cost
 
     return synthesis_text, round(total_cost, 6)
 

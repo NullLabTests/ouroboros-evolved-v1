@@ -121,7 +121,7 @@ EXPECTED_TOOLS = [
     # Tool creation
     "create_tool", "list_created_tools", "delete_created_tool",
     # Goal tracking
-    "set_goal", "list_goals", "update_goal", "deep_reflect",
+    "set_goal", "list_goals", "update_goal", "delete_goal", "deep_reflect",
     # Evolution automation
     "propose_evolution",
     "run_evolution_cycle",

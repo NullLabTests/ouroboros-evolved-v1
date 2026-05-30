@@ -24,10 +24,10 @@ def _inner_debate(ctx: ToolContext, question: str, stances: str = "", rounds: in
     available = list(STANCE_ROLES.keys())
     stance_list: list[str] = []
     if stances:
-        for s in s.split(","):
-            s = s.strip().lower()
-            if s in available:
-                stance_list.append(s)
+        for stance_token in stances.split(","):
+            stance_token = stance_token.strip().lower()
+            if stance_token in available:
+                stance_list.append(stance_token)
     if not stance_list:
         stance_list = available
 

@@ -44,17 +44,17 @@ def _update_goal(ctx: ToolContext, goal_id: str, status: str = "", notes: str = 
         notes: Additional notes to append
     """
     mgr = _get_manager(ctx)
-    # Match by prefix
-    matching = [gid for gid in [mgr.get_goal(gid) for gid in mgr._goals.keys()] if gid and gid.startswith(goal_id)]
-    if not matching:
+    # Match by prefix — use list_goals output to find matching IDs
+    goal = mgr.get_goal(goal_id)
+    if not goal:
         return f"Error: no goal matching '{goal_id}'"
 
     ok = mgr.update_goal(
-        goal_id=matching[0].id,
+        goal_id=goal_id,
         status=status or None,
         notes=notes or None,
     )
-    return f"Goal updated: {matching[0].title} → {status or 'unchanged'}" if ok else "Error updating goal."
+    return f"Goal updated: {goal.title} → {status or 'unchanged'}" if ok else "Error updating goal."
 
 
 def _list_goals(ctx: ToolContext, status: str = "") -> str:
@@ -93,6 +93,13 @@ def get_tools() -> List[ToolEntry]:
                 "notes": {"type": "string", "description": "Additional notes to append"},
             }, "required": ["goal_id"]},
         }, _update_goal),
+        ToolEntry("delete_goal", {
+            "name": "delete_goal",
+            "description": "Permanently remove a goal by ID.",
+            "parameters": {"type": "object", "properties": {
+                "goal_id": {"type": "string", "description": "Goal ID to delete"},
+            }, "required": ["goal_id"]},
+        }, lambda ctx, goal_id: "Deleted." if _get_manager(ctx).delete_goal(goal_id) else "Goal not found."),
         ToolEntry("list_goals", {
             "name": "list_goals",
             "description": "List all goals, optionally filtered by status.",
