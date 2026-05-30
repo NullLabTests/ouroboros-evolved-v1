@@ -420,7 +420,7 @@ def test_evolution_tracker_record_cycle(temp_drive: pathlib.Path):
 
 
 def test_evolution_tracker_reflection_scheduling(temp_drive: pathlib.Path):
-    from ouroboros.tools.evolve_cycle import EvolutionTracker, REFLECTION_INTERVAL
+    from ouroboros.tools.evolve_cycle import REFLECTION_INTERVAL, EvolutionTracker
     tracker = EvolutionTracker(drive_root=temp_drive)
     # Run enough cycles to trigger reflection
     for _ in range(REFLECTION_INTERVAL):
@@ -447,7 +447,6 @@ def test_evolution_tracker_persistence(temp_drive: pathlib.Path):
 def test_reflection_auto_apply(temp_drive: pathlib.Path):
     """Verify _apply_consolidation appends to identity.md."""
     from ouroboros.reflection_engine import _apply_consolidation
-    from ouroboros.memory import Memory
 
     identity_path = temp_drive / "memory" / "identity.md"
     identity_path.parent.mkdir(parents=True, exist_ok=True)
