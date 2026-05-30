@@ -13,10 +13,10 @@
   </picture>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License"/></a>
   <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-3178c6?style=flat-square" alt="Python 3.10+"/></a>
-  <img src="https://img.shields.io/badge/Tests-205-34d399?style=flat-square" alt="205 tests passing"/>
-  <img src="https://img.shields.io/badge/Principles-12-a78bfa?style=flat-square" alt="12 Principles"/>
+  <img src="https://img.shields.io/badge/Tests-229-34d399?style=flat-square" alt="229 tests passing"/>
+  <img src="https://img.shields.io/badge/Principles-13-a78bfa?style=flat-square" alt="13 Principles"/>
   <img src="https://img.shields.io/badge/Status-Evolving-ffd700?style=flat-square" alt="Status: Evolving"/>
-  <img src="https://img.shields.io/badge/Tools-42-f0883e?style=flat-square" alt="42 Tools"/>
+  <img src="https://img.shields.io/badge/Tools-66-f0883e?style=flat-square" alt="66 Tools"/>
   <img src="https://img.shields.io/badge/Architecture-Monorepo-8b949e?style=flat-square" alt="Monorepo"/>
 </p>
 

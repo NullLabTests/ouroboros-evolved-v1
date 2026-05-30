@@ -157,7 +157,7 @@ def generate_system_portrait() -> str:
   <text x="300" y="56" text-anchor="middle" font-family="monospace" font-size="9" fill="{cc(dim)}" letter-spacing="2">AUROGENE v7.0.0</text>
   <g transform="translate(40, 90)">
     <rect x="0" y="0" width="120" height="65" rx="8" fill="{cc(card)}" stroke="{cc(border)}" stroke-width="0.5"/>
-    <text x="60" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(cyan)}">42</text>
+    <text x="60" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(cyan)}">66</text>
     <text x="60" y="40" text-anchor="middle" font-family="monospace" font-size="8" fill="{cc(muted)}">TOOLS</text>
     <text x="60" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="{cc(dim)}">+{n_created_str} created</text>
     <rect x="140" y="0" width="120" height="65" rx="8" fill="{cc(card)}" stroke="{cc(border)}" stroke-width="0.5"/>
