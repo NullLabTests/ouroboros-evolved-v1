@@ -114,7 +114,7 @@ def test_extract_page_output_html_truncated(mock_ctx):
 
 
 def test_browser_action_click(mock_ctx, mock_page):
-    from ouroboros.tools.browser import _browser_action, _ensure_browser
+    from ouroboros.tools.browser import _browser_action
     with patch("ouroboros.tools.browser._ensure_browser", return_value=mock_page):
         result = _browser_action(mock_ctx, action="click", selector="#btn")
     assert "Clicked" in result
