@@ -7,6 +7,10 @@ Contract: load scratchpad/identity, chat_history().
 
 from __future__ import annotations
 
+__all__ = [
+    "Memory",
+]
+
 import json
 import logging
 import pathlib
@@ -227,6 +231,59 @@ class Memory:
 
     def append_journal(self, entry: Dict[str, Any]) -> None:
         append_jsonl(self.journal_path(), entry)
+
+    # --- Reflection journal ---
+
+    def reflections_path(self) -> pathlib.Path:
+        return self._memory_path("reflections.md")
+
+    def reflections_journal_path(self) -> pathlib.Path:
+        return self._memory_path("reflections_journal.jsonl")
+
+    def load_reflections(self, max_reflections: int = 3) -> str:
+        """Load the latest reflections as readable text."""
+        path = self.reflections_journal_path()
+        if not path.exists():
+            return ""
+        try:
+            lines = path.read_text(encoding="utf-8").strip().split("\n")
+            entries = []
+            for line in lines[-max_reflections:]:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entries.append(json.loads(line))
+                except Exception:
+                    continue
+            if not entries:
+                return ""
+            parts = []
+            for e in reversed(entries):
+                ts = str(e.get("ts", ""))[:19]
+                insight = str(e.get("insight", ""))
+                context = str(e.get("context", ""))
+                impact = str(e.get("impact", ""))
+                parts.append(f"- [{ts}] **{context}**: {insight}" + (f" (impact: {impact[:100]})" if impact else ""))
+            return "\n".join(parts)
+        except Exception:
+            log.debug("Failed to load reflections journal", exc_info=True)
+            return ""
+
+    def append_reflection(self, entry: Dict[str, Any]) -> None:
+        """Append a reflection entry to both the journal JSONL and the readable digest."""
+        # Append to journal
+        append_jsonl(self.reflections_journal_path(), entry)
+
+        # Update reflections.md with latest N entries
+        try:
+            recent = self.load_reflections(5)
+            content = "# Reflections\n\nA running log of insights Ouroboros has learned about itself and its work.\n\n"
+            content += recent if recent else "(no recent reflections)"
+            content += f"\n\n---\n*Updated: {utc_now_iso()}*"
+            write_text(self.reflections_path(), content)
+        except Exception:
+            log.debug("Failed to update reflections digest", exc_info=True)
 
     # --- Defaults ---
 

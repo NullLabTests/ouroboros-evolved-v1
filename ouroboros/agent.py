@@ -29,6 +29,7 @@ from ouroboros.utils import (
 from ouroboros.llm import LLMClient, add_usage
 from ouroboros.tools import ToolRegistry
 from ouroboros.tools.registry import ToolContext
+from ouroboros.tools.tool_creator import _inject_created_tools
 from ouroboros.memory import Memory
 from ouroboros.context import build_llm_messages
 from ouroboros.loop import run_llm_loop
@@ -81,6 +82,7 @@ class OuroborosAgent:
         # SSOT modules
         self.llm = LLMClient()
         self.tools = ToolRegistry(repo_dir=env.repo_dir, drive_root=env.drive_root)
+        _inject_created_tools(self.tools)  # Restore previously created custom tools
         self.memory = Memory(drive_root=env.drive_root, repo_dir=env.repo_dir)
 
         self._log_worker_boot_once()

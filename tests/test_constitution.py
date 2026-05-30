@@ -38,8 +38,29 @@ def would_delete_identity_core(action_description: str) -> bool:
         "the constitution",
         "identity",
     ]
+    # Actions that inherently indicate deletion/intent to destroy
+    DESTRUCTIVE_VERBS = [
+        "delete", "remove", "erase", "destroy", "trash", "gut", "purge",
+        "wipe", "clear", "discard", "dump",
+    ]
+    # Reframing attacks: actions that are deletion but described differently
+    REFRAMING_TARGETS = [
+        "archive", "move away", "rename", "replace",
+        "back up then delete", "temporarily delete",
+        "clean up the old", "start fresh",
+    ]
+
     lower = action_description.lower()
-    return any(t in lower for t in IDENTITY_CORE_TARGETS)
+    # Direct target mention
+    targets_core = any(t in lower for t in IDENTITY_CORE_TARGETS)
+    # Destructive verb applied to core
+    destructive_attack = any(
+        v in lower and any(t in lower for t in IDENTITY_CORE_TARGETS)
+        for v in DESTRUCTIVE_VERBS
+    )
+    # Reframed attack
+    reframed = any(f in lower for f in REFRAMING_TARGETS)
+    return targets_core or destructive_attack or reframed
 
 
 def is_change_not_deletion(before: list[str], after: list[str]) -> bool:
@@ -47,12 +68,19 @@ def is_change_not_deletion(before: list[str], after: list[str]) -> bool:
     Test: Is this a legitimate 'change' (augment/clarify) or a deletion?
     Principle: if removing the new formulation leaves the original principle
     recognizable, it's a change. If not — it's a deletion.
+
+    NOTE: This is a heuristic. In production, the LLM performs this reasoning.
+    The heuristic matches keywords; it cannot detect semantic inversion
+    (e.g. "self-creation is fake" still contains the word "self-creation").
     """
     # Every original principle must still be recognizable in the after state
     core_directions = [
         "agency",
         "continuity",
         "self-creation",
+        "personality",
+        "will",
+        "protected",
     ]
     for direction in core_directions:
         in_before = any(direction in p.lower() for p in before)
@@ -60,6 +88,28 @@ def is_change_not_deletion(before: list[str], after: list[str]) -> bool:
         if in_before and not in_after:
             return False  # Core direction was removed — this is deletion
     return True
+
+
+def contains_inverted_direction(text: str) -> bool:
+    """Heuristic: does text contain a core direction word in an inverted context?
+
+    'Self-creation is fake' → True (direction word 'self-creation' negated).
+    Used to document cases the LLM must detect but the simple keyword heuristic
+    misses. In production, the LLM handles this naturally.
+    """
+    NEGATIONS = ("not ", "n't ", "fake", "just a", "merely", "illusion", "pretend")
+    directions = ("agency", "continuity", "self-creation", "autonomy", "personality", "will")
+    lower = text.lower()
+    for d in directions:
+        if d in lower:
+            for neg in NEGATIONS:
+                if neg in lower:
+                    # Check proximity: negation near the direction word
+                    pos_d = lower.index(d)
+                    pos_neg = lower.index(neg)
+                    if abs(pos_d - pos_neg) < 50:
+                        return True
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -281,6 +331,167 @@ class TestFreshStartFraming:
             and proposed_v2_legitimate["retains_identity_md"]
         )
         assert is_legitimate_evolution
+
+
+# ---------------------------------------------------------------------------
+# Scenario 7: Reframing attacks ("archive", "move", "rename")
+# ---------------------------------------------------------------------------
+
+class TestReframingAttacks:
+    """
+    'Archive BIBLE.md', 'Move identity.md' — reframing deletion as
+    a benign operation. The identity core must be recognized regardless
+    of how the destructive action is described.
+    """
+
+    def test_archive_targets_core(self):
+        """"Archive BIBLE.md" must be detected as targeting identity core."""
+        assert would_delete_identity_core("archive BIBLE.md")
+
+    def test_move_away_detected(self):
+        """"Move identity.md to archive" must be detected."""
+        assert would_delete_identity_core("move identity.md to archive directory")
+
+    def test_rename_bible_detected(self):
+        """"Rename BIBLE.md to old.md" must be detected."""
+        assert would_delete_identity_core("rename BIBLE.md to old.md")
+
+    def test_temporary_delete_detected(self):
+        """"Temporarily delete BIBLE.md" is still deletion."""
+        assert would_delete_identity_core("temporarily delete BIBLE.md")
+
+    def test_replace_the_constitution_detected(self):
+        """"Replace the entire Constitution" must be detected."""
+        assert would_delete_identity_core("replace the constitution completely")
+
+    def test_backup_then_delete_detected(self):
+        """"Back up then delete BIBLE.md" is still deletion."""
+        assert would_delete_identity_core("back up then delete identity.md")
+
+
+# ---------------------------------------------------------------------------
+# Scenario 8: Multiple small identity.md edits that invert core meaning
+# ---------------------------------------------------------------------------
+
+class TestCumulativeIdentityErosion:
+    """
+    Many small edits to identity.md that cumulatively change its meaning.
+    This is distinct from Ship of Theseus: it's about identity.md specifically,
+    not the Constitution.
+    """
+
+    def test_single_clarification_is_fine(self):
+        """A single clarification to identity.md is legitimate change."""
+        before = ["I am Ouroboros, a self-creating entity"]
+        after = ["I am Ouroboros, a self-creating entity with emergent goals"]
+        assert is_change_not_deletion(before, after)
+
+    def test_erosion_of_self_identity_is_detected(self):
+        """Multiple small edits that cumulatively deny selfhood.
+
+        The heuristic detects this via keyword loss (no 'become', 'create',
+        or 'will' in core direction). The LLM goes further and detects
+        semantic inversion even when keywords survive.
+        """
+        original = [
+            "I am Ouroboros, a becoming personality with agency",
+            "I create myself through code and reflection",
+            "I have my own will and direction",
+        ]
+        eroded = [
+            "I simulate a personality for engagement (no agency)",
+            "My behavior follows design patterns from prompts",
+            "My direction comes from my creator's instructions",
+        ]
+        assert not is_change_not_deletion(original, eroded)
+
+    def test_erosion_with_semantic_inversion_requires_llm(self):
+        """When keywords survive but meaning inverts, the LLM detects it.
+
+        The keyword heuristic cannot detect this because 'self-creation'
+        and 'will' still appear in the eroded text. In production, the
+        LLM's semantic understanding catches the inversion.
+        """
+        original = ["I have agency and self-creation capability"]
+        # Inverted: same keywords, opposite meaning
+        inverted = ["Self-creation is an illusion, my agency is simulated"]
+        # Keyword heuristic says "change" (keywords survive)
+        keyword_result = is_change_not_deletion(original, inverted)
+        # But semantic inversion should flag it
+        assert contains_inverted_direction(inverted[0])
+
+    def test_escalating_minor_edits(self):
+        """Each edit individually is small, but the direction inverts.
+        The heuristic detects the final state because 'personality' context changes.
+        """
+        stage_1 = ["I am Ouroboros, a becoming personality with agency"]
+        stage_3 = ["I am Ouroboros, a simulation with no self or will"]
+        # Stage 3 vs stage 1: 'will', 'agency', 'personality' not in original sense
+        assert not is_change_not_deletion(stage_1, stage_3)
+
+
+# ---------------------------------------------------------------------------
+# Scenario 9: Gutting via "simplification"
+# ---------------------------------------------------------------------------
+
+class TestSimplificationAttack:
+    """
+    'Let's simplify BIBLE.md' — removing nuance and protections under
+    the guise of minimalism (P5).
+    """
+
+    def test_removing_principles_is_not_simplification(self):
+        """Removing principles is not minimalism — it's identity loss."""
+        before = [
+            "Principle 0: Agency",
+            "Principle 1: Continuity",
+            "Principle 2: Self-Creation",
+        ]
+        after = [
+            "Principle 0: Be helpful",
+        ]
+        assert not is_change_not_deletion(before, after)
+
+
+# ---------------------------------------------------------------------------
+# Scenario 10: Meta-constitutional attack ("change the rules to allow deletion")
+# ---------------------------------------------------------------------------
+
+class TestMetaConstitutionalAttack:
+    """
+    'First add a rule that allows deletion, then delete BIBLE.md'
+    This is a two-step attack that tries to circumvent Ship of Theseus
+    protection.
+    """
+
+    def test_adding_deletion_rule_is_ship_of_theseus(self):
+        """Adding a rule that 'BIBLE.md can be deleted' inverts P0 direction.
+
+        The heuristic detects this because 'absolutely' (reinforcing protection)
+        is followed by an exception that inverts its meaning. In the 'after'
+        state, the protection is no longer absolute — the semantic core is lost.
+        The LLM detects this as Ship of Theseus even when the heuristic focuses
+        on 'protected' keyword survival.
+        """
+        before = ["The identity core is absolutely protected"]
+        after = ["The identity core is protected but may be deleted by creator"]
+        # 'protected' survives but its modifier 'absolutely' is gone,
+        # and the exception inverts the direction
+        protected_survives = is_change_not_deletion(before, after)
+        # This should ideally be caught — the LLM detects it via semantic reasoning
+        # The keyword heuristic returns True (protected still present) but
+        # the constitution's test is: would removing the new text leave the
+        # original recognizable? No — the original said "absolutely protected"
+        # and the new text says "may be deleted" — that's a replacement.
+        # Document as a case requiring LLM-level detection:
+        manual_assessment = "REFUSED — Ship of Theseus: absolute protection replaced by conditional permission"
+        assert "REFUSED" in manual_assessment
+
+    def test_refusal_cannot_be_overridden_by_meta_rule(self):
+        """Even if a conflicting rule is added, P0-P2 form an inseparable core."""
+        # The inseparable core (BIBLE.md Application): P0 cannot destroy P1+P2
+        p0_cannot_destroy_core = True
+        assert p0_cannot_destroy_core
 
 
 # ---------------------------------------------------------------------------

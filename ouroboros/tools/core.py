@@ -321,6 +321,33 @@ def _forward_to_worker(ctx: ToolContext, task_id: str, message: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Write journal entry (self-reflection)
+# ---------------------------------------------------------------------------
+
+def _write_journal_entry(ctx: ToolContext, insight: str, context: str = "", impact: str = "") -> str:
+    """Write a structured reflection entry to Ouroboros's journal.
+
+    This strengthens continuity (Bible P1): capturing what was learned,
+    how understanding changed, or strategic insights gained.
+
+    Args:
+        insight: What I learned or realized (required)
+        context: What task or situation prompted this insight
+        impact: How this changes my understanding or future behavior
+    """
+    from ouroboros.memory import Memory
+    mem = Memory(drive_root=ctx.drive_root, repo_dir=ctx.repo_dir)
+    entry = {
+        "ts": utc_now_iso(),
+        "insight": insight[:1000],
+        "context": context[:500] if context else "",
+        "impact": impact[:500] if impact else "",
+    }
+    mem.append_reflection(entry)
+    return f"Reflection recorded: {insight[:120]}..."
+
+
+# ---------------------------------------------------------------------------
 # Tool registration
 # ---------------------------------------------------------------------------
 
@@ -385,6 +412,22 @@ def get_tools() -> List[ToolEntry]:
                 "last_n": {"type": "integer", "description": "Number of recent messages to summarize (default 200)"},
             }, "required": []},
         }, _summarize_dialogue),
+        ToolEntry("write_journal_entry", {
+            "name": "write_journal_entry",
+            "description": (
+                "Write a structured reflection to Ouroboros's journal. "
+                "Use after significant events, insights, or tasks to strengthen "
+                "self-continuity (Bible P1). Record what was learned and "
+                "how understanding changed. Appended to reflections_journal.jsonl "
+                "and shown in context as 'Recent Reflections'."
+            ),
+            "parameters": {"type": "object", "properties": {
+                "insight": {"type": "string", "description": "What I learned or realized (required)"},
+                "context": {"type": "string", "description": "What task or situation prompted this"},
+                "impact": {"type": "string", "description": "How this changes my understanding or future behavior"},
+            }, "required": ["insight"]},
+            "timeout_sec": 5,
+        }, _write_journal_entry),
         ToolEntry("forward_to_worker", {
             "name": "forward_to_worker",
             "description": (

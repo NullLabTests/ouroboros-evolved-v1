@@ -7,6 +7,13 @@ Extracted from agent.py to keep the agent thin and focused.
 
 from __future__ import annotations
 
+__all__ = [
+    "build_llm_messages",
+    "apply_message_token_soft_cap",
+    "compact_tool_history",
+    "compact_tool_history_llm",
+]
+
 import copy
 import json
 import logging
@@ -109,6 +116,11 @@ def _build_memory_sections(memory: Memory) -> List[str]:
         summary_text = read_text(summary_path)
         if summary_text.strip():
             sections.append("## Dialogue Summary\n\n" + clip_text(summary_text, 20000))
+
+    # Reflections (recent self-insights)
+    reflections_raw = memory.load_reflections(3)
+    if reflections_raw:
+        sections.append("## Recent Reflections\n\n" + reflections_raw)
 
     return sections
 

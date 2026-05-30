@@ -7,6 +7,13 @@ Does not import anything from ouroboros.* (zero dependency level).
 
 from __future__ import annotations
 
+__all__ = [
+    "utc_now_iso", "sha256_text", "read_text", "write_text", "append_jsonl",
+    "safe_relpath", "truncate_for_log", "clip_text", "short", "estimate_tokens",
+    "run_cmd", "get_git_info",
+    "sanitize_task_for_event", "sanitize_tool_result_for_log", "sanitize_tool_args_for_log",
+]
+
 import datetime as _dt
 import hashlib
 import json

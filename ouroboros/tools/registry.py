@@ -88,6 +88,13 @@ CORE_TOOL_NAMES = {
     "request_restart", "promote_to_stable",
     "knowledge_read", "knowledge_write",
     "browse_page", "browser_action", "analyze_screenshot",
+    "write_journal_entry",
+    # Evolved tools (v7.0)
+    "create_tool", "list_created_tools", "delete_created_tool",
+    "inner_debate",
+    "group_evolution_experiment",
+    "deep_reflect",
+    "set_goal", "update_goal", "list_goals",
 }
 
 

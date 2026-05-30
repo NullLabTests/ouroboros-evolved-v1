@@ -32,6 +32,7 @@ from ouroboros.utils import (
     truncate_for_log, sanitize_tool_result_for_log, sanitize_tool_args_for_log,
 )
 from ouroboros.llm import LLMClient, DEFAULT_LIGHT_MODEL
+from ouroboros.goals import GoalManager
 
 log = logging.getLogger(__name__)
 
@@ -336,6 +337,15 @@ class BackgroundConsciousness:
             parts.append("## Recent observations\n\n" + "\n".join(
                 f"- {o}" for o in observations[-10:]))
 
+        # Goals (self-directed agency)
+        try:
+            gm = GoalManager(drive_root=self._drive_root)
+            goals_summary = gm.summary_for_context()
+            if goals_summary:
+                parts.append(goals_summary)
+        except Exception as e:
+            log.debug("Failed to load goals for consciousness: %s", e)
+
         # Runtime info + state
         runtime_lines = [f"UTC: {utc_now_iso()}"]
         runtime_lines.append(f"BG budget spent: ${self._bg_spent_usd:.4f}")
@@ -376,6 +386,14 @@ class BackgroundConsciousness:
         "chat_history",
         # GitHub Issues
         "list_github_issues", "get_github_issue",
+        # Self-directed goals (P0 Agency)
+        "set_goal", "update_goal", "list_goals",
+        # Self-reflection (P1 Continuity)
+        "deep_reflect", "write_journal_entry",
+        # Strategic reasoning
+        "inner_debate",
+        # Codebase awareness
+        "codebase_digest", "repo_write_commit", "repo_commit_push",
     })
 
     def _build_registry(self) -> "ToolRegistry":

@@ -1,9 +1,4 @@
-"""
-Ouroboros — LLM tool loop.
-
-Core loop: send messages to LLM, execute tool calls, repeat until final response.
-Extracted from agent.py to keep the agent thin.
-"""
+"""Ouroboros — LLM tool loop."""
 
 from __future__ import annotations
 
@@ -445,6 +440,11 @@ def _check_budget_limits(
     return None
 
 
+# Adaptive self-check schedule: early checks prevent spirals,
+# spacing grows to avoid pestering the agent during deep work.
+_CHECKPOINT_ROUNDS = (5, 10, 20, 35, 50, 75, 100, 150, 200)
+
+
 def _maybe_inject_self_check(
     round_idx: int,
     max_rounds: int,
@@ -452,13 +452,16 @@ def _maybe_inject_self_check(
     accumulated_usage: Dict[str, Any],
     emit_progress: Callable[[str], None],
 ) -> None:
-    """Inject a soft self-check reminder every REMINDER_INTERVAL rounds.
+    """Inject a soft self-check reminder on an adaptive schedule.
 
-    This is a cognitive feature (Bible P0: subjectivity) — the agent reflects
-    on its own resource usage and strategy, not a hard kill.
+    Checkpoint rounds: 5, 10, 20, 35, 50, 75, 100, 150, 200...
+    Early checks catch spiraling before it costs too much; later checks
+    are reminders during long tasks.
+
+    This is a cognitive feature (Bible P0: subjectivity) — the agent
+    reflects on its own resource usage and strategy, not a hard kill.
     """
-    REMINDER_INTERVAL = 50
-    if round_idx <= 1 or round_idx % REMINDER_INTERVAL != 0:
+    if round_idx <= 1 or round_idx not in _CHECKPOINT_ROUNDS:
         return
     ctx_tokens = sum(
         estimate_tokens(str(m.get("content", "")))
@@ -467,11 +470,17 @@ def _maybe_inject_self_check(
         for m in messages
     )
     task_cost = accumulated_usage.get("cost", 0)
-    checkpoint_num = round_idx // REMINDER_INTERVAL
+    prev_cost = _maybe_inject_self_check._last_checkpoint_cost.get(round_idx, 0.0)
+    cost_accel = ""
+    if prev_cost > 0 and task_cost > prev_cost:
+        ratio = task_cost / max(prev_cost, 0.001)
+        if ratio > 1.5:
+            cost_accel = f" | ⚠ Cost acceleration: {ratio:.1f}x since last checkpoint"
+    _maybe_inject_self_check._last_checkpoint_cost[round_idx] = task_cost
 
     reminder = (
-        f"[CHECKPOINT {checkpoint_num} — round {round_idx}/{max_rounds}]\n"
-        f"📊 Context: ~{ctx_tokens} tokens | Cost so far: ${task_cost:.2f} | "
+        f"[CHECKPOINT round {round_idx}/{max_rounds}]\n"
+        f"📊 Context: ~{ctx_tokens} tokens | Cost so far: ${task_cost:.2f}{cost_accel} | "
         f"Rounds remaining: {max_rounds - round_idx}\n\n"
         f"⏸️ PAUSE AND REFLECT before continuing:\n"
         f"1. Am I making real progress, or repeating the same actions?\n"
@@ -484,7 +493,9 @@ def _maybe_inject_self_check(
         f"This is not a hard limit — you decide. But be honest with yourself."
     )
     messages.append({"role": "system", "content": reminder})
-    emit_progress(f"🔄 Checkpoint {checkpoint_num} at round {round_idx}: ~{ctx_tokens} tokens, ${task_cost:.2f} spent")
+    emit_progress(f"🔄 Checkpoint at round {round_idx}: ~{ctx_tokens} tokens, ${task_cost:.2f} spent{cost_accel}")
+
+_maybe_inject_self_check._last_checkpoint_cost = {}
 
 
 def _setup_dynamic_tools(tools_registry, tool_schemas, messages):

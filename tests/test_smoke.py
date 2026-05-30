@@ -112,8 +112,19 @@ EXPECTED_TOOLS = [
     "forward_to_worker",
     # Context management
     "compact_context",
+    # Self-reflection journal
+    "write_journal_entry",
     "list_available_tools",
     "enable_tools",
+    # Multi-model and group evolution
+    "inner_debate", "group_evolution_experiment",
+    # Tool creation
+    "create_tool", "list_created_tools", "delete_created_tool",
+    # Goal tracking
+    "set_goal", "list_goals", "update_goal", "deep_reflect",
+    # Evolution automation
+    "propose_evolution",
+    "run_evolution_cycle",
 ]
 
 
@@ -255,6 +266,69 @@ def test_context_build_memory_sections():
     """Memory sections builder is callable."""
     from ouroboros.context import _build_memory_sections
     assert callable(_build_memory_sections)
+
+
+# ── Reflection journal ──────────────────────────────────────────
+
+def test_write_and_load_reflection():
+    """Reflection journal: write entry, load it back."""
+    from ouroboros.memory import Memory
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = pathlib.Path(tmp)
+        mem = Memory(drive_root=tmp_path)
+        mem.append_reflection({
+            "ts": "2026-01-01T00:00:00",
+            "insight": "test insight about architecture",
+            "context": "testing the reflection system",
+            "impact": "improves continuity",
+        })
+        reflections = mem.load_reflections(5)
+        assert "test insight" in reflections, "Reflection should be loadable"
+        assert "architecture" in reflections, "Insight content should be preserved"
+
+        # Check digest file exists
+        assert mem.reflections_path().exists()
+        digest = mem.reflections_path().read_text()
+        assert "Reflections" in digest, "Digest should have header"
+        assert "test insight" in digest, "Digest should include reflection text"
+
+        # Check journal file
+        assert mem.reflections_journal_path().exists()
+        journal_lines = mem.reflections_journal_path().read_text().strip().split("\n")
+        assert len(journal_lines) == 1, "Journal should have 1 entry"
+
+
+def test_reflection_empty_when_no_journal():
+    """load_reflections returns '' when no reflections exist."""
+    from ouroboros.memory import Memory
+    with tempfile.TemporaryDirectory() as tmp:
+        mem = Memory(drive_root=pathlib.Path(tmp))
+        result = mem.load_reflections(3)
+        assert result == "", "Should return empty string when no reflections"
+
+
+# ── Self-check checkpoint schedule ──────────────────────────────
+
+def test_checkpoint_schedule():
+    """Self-check fires at correct adaptive intervals."""
+    from ouroboros.loop import _CHECKPOINT_ROUNDS
+    assert 5 in _CHECKPOINT_ROUNDS, "Early checkpoint at round 5"
+    assert 10 in _CHECKPOINT_ROUNDS, "Round 10 checkpoint"
+    assert 20 in _CHECKPOINT_ROUNDS, "Round 20 checkpoint"
+    assert 50 in _CHECKPOINT_ROUNDS, "Mid-task checkpoint at round 50"
+    assert 100 in _CHECKPOINT_ROUNDS, "Round 100 checkpoint"
+    assert 200 in _CHECKPOINT_ROUNDS, "Round 200 checkpoint"
+    assert len(_CHECKPOINT_ROUNDS) == 9, f"Expected 9 checkpoints, got {len(_CHECKPOINT_ROUNDS)}"
+    # Verify strictly increasing
+    for i in range(1, len(_CHECKPOINT_ROUNDS)):
+        assert _CHECKPOINT_ROUNDS[i] > _CHECKPOINT_ROUNDS[i-1], "Schedule must be strictly increasing"
+
+
+def test_checkpoint_not_fired_before_round_5():
+    """No self-check before round 5."""
+    from ouroboros.loop import _CHECKPOINT_ROUNDS
+    for r in range(1, _CHECKPOINT_ROUNDS[0]):
+        assert r not in _CHECKPOINT_ROUNDS, f"Round {r} should not be a checkpoint"
 
 
 # ── Bible invariants ─────────────────────────────────────────────

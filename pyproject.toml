@@ -1,8 +1,14 @@
 [project]
-name = "ouroboros"
-version = "6.2.0"
-description = "Self-creating agent"
+name = "aurogene"
+version = "7.0.0"
+description = "Self-evolving digital mind — creates its own tools, goals, and inner council"
 requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+include = ["ouroboros*", "supervisor*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
