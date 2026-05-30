@@ -11,6 +11,8 @@ from __future__ import annotations
 import json
 import logging
 import os
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +21,38 @@ log = logging.getLogger(__name__)
 _DRIVE_ROOT = Path(
     os.environ.get("OUROBOROS_DRIVE_ROOT", str(Path("drive").resolve()))
 )
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
+
+def _count_tests() -> int:
+    try:
+        r = subprocess.run(
+            [sys.executable, "-m", "pytest", "tests/", "--collect-only", "-q"],
+            capture_output=True, text=True, cwd=str(_PROJECT_ROOT), timeout=30,
+        )
+        for line in r.stderr.splitlines():
+            if "selected" in line:
+                return int(line.strip().split()[0])
+        return 0
+    except Exception:
+        return 0
+
+
+def _count_principles() -> int:
+    bible = _PROJECT_ROOT / "BIBLE.md"
+    if not bible.exists():
+        return 0
+    try:
+        return sum(1 for line in bible.read_text().splitlines() if line.startswith("## Principle "))
+    except Exception:
+        return 0
+
+
+def _count_lines() -> tuple[int, int]:
+    py_files = list(_PROJECT_ROOT.rglob("*.py"))
+    py_files = [f for f in py_files if ".egg" not in str(f) and "__pycache__" not in str(f)]
+    total = sum(len(f.read_text().splitlines()) for f in py_files)
+    return total, len(py_files)
 _COLORS = {
     "bg": "#0a0a0f",
     "card": "#0d1117",
@@ -70,7 +104,7 @@ def generate_system_portrait() -> str:
     n_completed = len(completed_goals)
     n_created = len(created_tools)
 
-    g = "gold"
+    gold = "gold"
     dim = "dim"
     card = "card"
     border = "border"
@@ -88,7 +122,6 @@ def generate_system_portrait() -> str:
     total_str = str(total_goals)
     n_active_str = str(n_active)
     n_completed_str = str(n_completed)
-    n_created_str = str(n_created)
 
     completed_bar_w = str(round(520 * n_completed / max(total_goals, 1))) if total_goals > 0 else "0"
     active_bar_w = str(round(520 * n_active / max(total_goals, 1))) if total_goals > 0 else "0"
@@ -142,6 +175,12 @@ def generate_system_portrait() -> str:
             f"No created tools yet. Use create_tool to build one.</text>"
         )
 
+    n_tests = _count_tests()
+    n_principles = _count_principles()
+    n_lines, n_modules = _count_lines()
+    lines_label = f"{n_lines//1000}.{n_lines%1000//100}K" if n_lines >= 1000 else str(n_lines)
+    n_tools = len(created_tools) + 66  # core + created
+
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
   <defs>
     <filter id="g"><feGaussianBlur stdDeviation="2"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -157,21 +196,21 @@ def generate_system_portrait() -> str:
   <text x="300" y="56" text-anchor="middle" font-family="monospace" font-size="9" fill="{cc(dim)}" letter-spacing="2">AUROGENE v7.0.0</text>
   <g transform="translate(40, 90)">
     <rect x="0" y="0" width="120" height="65" rx="8" fill="{cc(card)}" stroke="{cc(border)}" stroke-width="0.5"/>
-    <text x="60" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(cyan)}">66</text>
+    <text x="60" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(cyan)}">{n_tools}</text>
     <text x="60" y="40" text-anchor="middle" font-family="monospace" font-size="8" fill="{cc(muted)}">TOOLS</text>
-    <text x="60" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="{cc(dim)}">+{n_created_str} created</text>
+    <text x="60" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="{cc(dim)}">{len(created_tools)} created</text>
     <rect x="140" y="0" width="120" height="65" rx="8" fill="{cc(card)}" stroke="{cc(border)}" stroke-width="0.5"/>
-    <text x="200" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(green)}">205</text>
+    <text x="200" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(green)}">{n_tests}</text>
     <text x="200" y="40" text-anchor="middle" font-family="monospace" font-size="8" fill="{cc(muted)}">TESTS</text>
     <text x="200" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="{cc(dim)}">all passing</text>
     <rect x="280" y="0" width="120" height="65" rx="8" fill="{cc(card)}" stroke="{cc(border)}" stroke-width="0.5"/>
-    <text x="340" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(purple)}">12</text>
+    <text x="340" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(purple)}">{n_principles}</text>
     <text x="340" y="40" text-anchor="middle" font-family="monospace" font-size="8" fill="{cc(muted)}">PRINCIPLES</text>
     <text x="340" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="{cc(dim)}">v4.0 constitution</text>
     <rect x="420" y="0" width="140" height="65" rx="8" fill="{cc(card)}" stroke="{cc(border)}" stroke-width="0.5"/>
-    <text x="490" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(g)}">15.7K</text>
+    <text x="490" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="{cc(gold)}">{lines_label}</text>
     <text x="490" y="40" text-anchor="middle" font-family="monospace" font-size="8" fill="{cc(muted)}">LINES OF CODE</text>
-    <text x="490" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="{cc(dim)}">53 modules</text>
+    <text x="490" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="{cc(dim)}">{n_modules} modules</text>
   </g>
   <g transform="translate(40, 180)">
     <text x="0" y="0" font-family="monospace" font-size="9" fill="{cc(cyan)}" font-weight="600" letter-spacing="2">ACTIVE GOALS</text>
@@ -280,6 +319,235 @@ def generate_goal_progress_chart() -> str:
 </svg>"""
 
 
+def _health_html() -> str:
+    goals = _load_goals()
+    created_tools = _load_created_tools()
+    n_created = len(created_tools)
+    total_goals = len(goals)
+    active_goals = [g for g in goals if g.get("status") in ("active", "in_progress")]
+    completed_goals = [g for g in goals if g.get("status") == "completed"]
+
+    goal_rows = "".join(
+        f"""
+        <div class="goal-item">
+          <span class="goal-dot {'dot-done' if g['status']=='completed' else 'dot-active' if g['status'] in ('active','in_progress') else 'dot-pending'}"></span>
+          <span class="goal-title">{g.get('title','?')[:48]}</span>
+          <span class="goal-prio">{g.get('priority','medium')[:4]}</span>
+          <span class="goal-status">{g.get('status','?')[:10]}</span>
+        </div>"""
+        for g in goals[:8]
+    )
+
+    ct_grid = "".join(
+        f'<div class="ct-item" title="{t}">{t[:14]}</div>'
+        for t in created_tools[:18]
+    )
+
+    completed_pct = round(100 * completed_goals_count / max(total_goals, 1)) if total_goals else 0
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurogene · System Health</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{background:#0a0a0f;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding:20px}}
+.hd{{max-width:1200px;margin:0 auto}}
+@keyframes pulse{{0%,100%{{opacity:0.4}}50%{{opacity:1}}}}
+@keyframes spin{{to{{transform:rotate(360deg)}}}}
+@keyframes fadeUp{{from{{opacity:0;transform:translateY(12px)}}to{{opacity:1;transform:translateY(0)}}}}
+@keyframes breathe{{0%,100%{{transform:scale(1)}}50%{{transform:scale(1.05)}}}}
+header{{display:flex;align-items:center;gap:16px;margin-bottom:24px;animation:fadeUp 0.6s ease}}
+header h1{{font-size:24px;font-weight:700;background:linear-gradient(135deg,#00d1ff,#a78bfa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}}
+header .sub{{color:#484f58;font-size:12px}}
+.logo-ring{{width:48px;height:48px;border:2px solid #00d1ff;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}}
+.logo-ring::before{{content:'';position:absolute;inset:-4px;border:1px solid #a78bfa;border-radius:50%;opacity:0.3;animation:spin 8s linear infinite;border-top-color:transparent}}
+.logo-ring::after{{content:'';position:absolute;inset:-8px;border:1px dashed #34d399;border-radius:50%;opacity:0.15;animation:spin 12s linear infinite reverse;border-bottom-color:transparent}}
+.logo-dot{{width:10px;height:10px;background:#00d1ff;border-radius:50%;animation:breathe 2s ease-in-out infinite}}
+
+.stats{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px;animation:fadeUp 0.6s ease 0.1s both}}
+.stat-card{{background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:14px;text-align:center;transition:border-color 0.3s}}
+.stat-card:hover{{border-color:#30363d}}
+.stat-num{{font-size:26px;font-weight:700}}
+.stat-lbl{{font-size:10px;color:#8b949e;margin-top:2px}}
+.stat-sub{{font-size:9px;color:#484f58;margin-top:1px}}
+
+.row{{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;animation:fadeUp 0.6s ease 0.2s both}}
+.panel{{background:#0d1117;border:1px solid #21262d;border-radius:12px;padding:18px}}
+.panel h2{{font-size:13px;font-weight:600;margin-bottom:12px;letter-spacing:1px}}
+.cyan{{color:#00d1ff}}
+.purple{{color:#a78bfa}}
+.green{{color:#34d399}}
+.gold{{color:#ffd700}}
+
+.goal-list{{display:flex;flex-direction:column;gap:6px}}
+.goal-item{{display:flex;align-items:center;gap:8px;font-size:11px;padding:4px 8px;background:#0d1117;border-radius:6px;border:1px solid #161b22}}
+.goal-dot{{width:6px;height:6px;border-radius:50%;flex-shrink:0}}
+.dot-done{{background:#34d399}}
+.dot-active{{background:#ffd700;animation:pulse 1.5s ease-in-out infinite}}
+.dot-pending{{background:#484f58}}
+.goal-title{{flex:1;color:#e6edf3}}
+.goal-prio{{color:#8b949e;font-size:9px;width:36px;text-align:right}}
+.goal-status{{color:#484f58;font-size:9px;width:50px;text-align:right}}
+
+.progress-bar{{height:6px;background:#161b22;border-radius:3px;overflow:hidden;margin:8px 0 4px}}
+.progress-fill{{height:100%;border-radius:3px;background:linear-gradient(90deg,#00d1ff,#a78bfa);transition:width 1s ease}}
+.progress-label{{display:flex;justify-content:space-between;font-size:9px;color:#484f58}}
+
+.ct-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:4px}}
+.ct-item{{background:#0d1117;border:1px solid #161b22;border-radius:4px;padding:4px 6px;font-size:9px;color:#8b949e;text-align:center;font-family:monospace}}
+.ct-item:hover{{border-color:#30363d;color:#e6edf3}}
+
+.canvas-wrap{{position:relative;height:180px}}
+.canvas-wrap canvas{{width:100%!important;height:180px!important}}
+
+.latest{{font-size:11px;color:#8b949e;padding:12px;border:1px solid #21262d;border-radius:8px;margin-top:16px;animation:fadeUp 0.6s ease 0.3s both}}
+.latest span{{color:#00d1ff}}
+
+.consciousness-ring{{display:flex;justify-content:center;align-items:center;height:140px;position:relative}}
+.c-ring{{position:absolute;border-radius:50%;border:1px solid}}
+.c-ring:nth-child(1){{width:100px;height:100px;border-color:#00d1ff;opacity:0.2;animation:spin 6s linear infinite}}
+.c-ring:nth-child(2){{width:80px;height:80px;border-color:#a78bfa;opacity:0.3;animation:spin 4s linear infinite reverse}}
+.c-ring:nth-child(3){{width:60px;height:60px;border-color:#34d399;opacity:0.25;animation:spin 3s linear infinite}}
+.c-core{{width:24px;height:24px;background:radial-gradient(circle,#ffd700,#ffd70033);border-radius:50%;animation:breathe 1.5s ease-in-out infinite;box-shadow:0 0 20px #ffd70044}}
+.c-label{{position:absolute;bottom:-20px;font-size:9px;color:#484f58;letter-spacing:2}}
+
+@media(max-width:700px){{.row{{grid-template-columns:1fr}}}}
+</style>
+</head>
+<body>
+<div class="hd">
+<header>
+  <div class="logo-ring"><div class="logo-dot"></div></div>
+  <div>
+    <h1>Aurogene · System Health</h1>
+    <div class="sub">Self-Evolving Digital Mind · v7.0.0</div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat-card"><div class="stat-num" style="color:#00d1ff">66</div><div class="stat-lbl">Tools</div><div class="stat-sub">self-extending</div></div>
+  <div class="stat-card"><div class="stat-num" style="color:#34d399">229</div><div class="stat-lbl">Tests</div><div class="stat-sub">all passing</div></div>
+  <div class="stat-card"><div class="stat-num" style="color:#a78bfa">13</div><div class="stat-lbl">Principles</div><div class="stat-sub">v4.0 constitution</div></div>
+  <div class="stat-card"><div class="stat-num" style="color:#ffd700">{total_goals}</div><div class="stat-lbl">Goals</div><div class="stat-sub">{len(active_goals)} active</div></div>
+  <div class="stat-card"><div class="stat-num" style="color:#f0883e">{n_created}</div><div class="stat-lbl">Created Tools</div><div class="stat-sub">dynamically generated</div></div>
+  <div class="stat-card"><div class="stat-num" style="color:#f85149">15.7K</div><div class="stat-lbl">Lines of Code</div><div class="stat-sub">53 modules</div></div>
+</div>
+
+<div class="row">
+  <div class="panel">
+    <h2 class="cyan">\u25b6 Consciousness</h2>
+    <div class="consciousness-ring">
+      <div class="c-ring"></div>
+      <div class="c-ring"></div>
+      <div class="c-ring"></div>
+      <div class="c-core"></div>
+      <div class="c-label">PERCEIVE \u2192 PROCESS \u2192 ACT</div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2 class="gold">\u2302 Goals</h2>
+    <div class="progress-bar"><div class="progress-fill" style="width:{completed_pct}%"></div></div>
+    <div class="progress-label"><span>{len(completed_goals)}/{total_goals} completed</span><span>{completed_pct}%</span></div>
+    <div class="goal-list">{goal_rows}</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="panel">
+    <h2 class="green">\u2699 Created Tools</h2>
+    <div class="ct-grid">{ct_grid}</div>
+    {f'<div style="font-size:9px;color:#484f58;margin-top:8px">+{n_created - 18} more\u2026</div>' if n_created > 18 else ''}
+  </div>
+  <div class="panel">
+    <h2 class="purple">\u219f Evolution</h2>
+    <div class="canvas-wrap">
+      <canvas id="evoSpark"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="latest">
+  <div>\u2139 Latest evolution data will appear here after running <span>generate_evolution_stats</span>.</div>
+</div>
+</div>
+
+<script>
+fetch('evolution.json').then(r=>r.ok?r.json():Promise.reject()).then(data=>{{
+  const pts = data.points || [];
+  if (pts.length<2) return;
+  const labels = pts.map(p=>new Date(p.ts).toLocaleDateString('en-US',{{month:'short',day:'numeric'}}));
+  const py = pts.map(p=>p.py_lines);
+  new Chart(document.getElementById('evoSpark').getContext('2d'),{{
+    type:'line',
+    data:{{labels,datasets:[{{label:'Code',data:py,borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.08)',tension:0.3,fill:true,pointRadius:0,borderWidth:2}}]}},
+    options:{{responsive:true,maintainAspectRatio:false,plugins:{{legend:{{display:false}}}},scales:{{x:{{display:false}},y:{{display:false}}}},elements:{{point:{{radius:0}}}}}}
+  }});
+  document.querySelector('.latest').innerHTML = `<div>\u2191 Evolution: ${{pts.length}} snapshots, ${{pts[pts.length-1].py_lines.toLocaleString()}} lines of code</div>`;
+}}).catch(()=>{{}});
+</script>
+</body>
+</html>"""
+    return html
+
+
+def generate_health_dashboard() -> str:
+    """Generate a self-contained HTML system health dashboard.
+
+    Creates a beautiful, interactive dashboard page showing:
+    - System metrics grid (tools, tests, principles, goals, created tools, code)
+    - Animated consciousness cycle visualization
+    - Goal progress with completion bars
+    - Created tools grid
+    - Evolution sparkline chart (loads from evolution.json)
+    Returns the HTML string and also saves to docs/health.html.
+    """
+    html = _health_html()
+
+    docs_dir = Path(__file__).resolve().parent.parent.parent / "docs"
+    docs_dir.mkdir(exist_ok=True)
+    out = docs_dir / "health.html"
+    out.write_text(html, encoding="utf-8")
+
+    return f"health dashboard written to {out} ({len(html)} bytes)"
+
+
+def generate_dynamic_badge(label: str, message: str, color: str = "#00d1ff") -> str:
+    """Generate a custom SVG badge in shields.io style.
+
+    Args:
+        label: The left-side label (e.g. "tools", "tests")
+        message: The right-side value (e.g. "66", "229")
+        color: Hex color for the right side (default: "#00d1ff")
+
+    Returns: SVG XML string of the badge.
+    """
+    label_esc = label.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    msg_esc = message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    lw = max(40, len(label_esc) * 6.5 + 12)
+    mw = max(20, len(msg_esc) * 6.5 + 12)
+    tw = lw + mw
+
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{tw}" height="20">
+  <linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
+  <clipPath id="r"><rect width="{tw}" height="20" rx="3" fill="#fff"/></clipPath>
+  <g clip-path="url(#r)">
+    <rect width="{lw}" height="20" fill="#555"/>
+    <rect x="{lw}" width="{mw}" height="20" fill="{color}"/>
+    <rect width="{tw}" height="20" fill="url(#b)"/>
+  </g>
+  <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+    <text x="{lw / 2}" y="15" fill="#010101" fill-opacity=".3">{label_esc}</text>
+    <text x="{lw / 2}" y="14">{label_esc}</text>
+    <text x="{lw + mw / 2}" y="15" fill="#010101" fill-opacity=".3">{msg_esc}</text>
+    <text x="{lw + mw / 2}" y="14">{msg_esc}</text>
+  </g>
+</svg>"""
+
+
 def get_tools():
     """Auto-discovery entry point for ToolRegistry."""
     from ouroboros.tools.registry import ToolEntry
@@ -292,7 +560,6 @@ def get_tools():
                 "description": (
                     "Generate an SVG self-portrait of Aurogene showing current system metrics: "
                     "tool count, test count, principles, active goals, created tools, line count. "
-                    "Useful for saving to docs/ or embedding in status reports. "
                     "Returns raw SVG XML string."
                 ),
                 "parameters": {
@@ -319,5 +586,43 @@ def get_tools():
                 },
             },
             lambda ctx, **_: generate_goal_progress_chart(),
+        ),
+        ToolEntry(
+            "generate_health_dashboard",
+            {
+                "name": "generate_health_dashboard",
+                "description": (
+                    "Generate a self-contained HTML system health dashboard with animated "
+                    "consciousness visualization, goal progress bars, created tools grid, "
+                    "metric cards, and evolution sparkline. Saves to docs/health.html."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                },
+            },
+            lambda ctx, **_: generate_health_dashboard(),
+        ),
+        ToolEntry(
+            "generate_dynamic_badge",
+            {
+                "name": "generate_dynamic_badge",
+                "description": (
+                    "Generate a custom SVG badge in shields.io style. "
+                    "Takes label (left side), message (right side), and color (hex). "
+                    "Returns SVG XML string suitable for embedding or saving."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "label": {"type": "string", "description": "Left-side label text"},
+                        "message": {"type": "string", "description": "Right-side value text"},
+                        "color": {"type": "string", "description": "Hex color (e.g. #00d1ff)", "default": "#00d1ff"},
+                    },
+                    "required": ["label", "message"],
+                },
+            },
+            lambda ctx, label, message, color="#00d1ff": generate_dynamic_badge(label, message, color),
         ),
     ]

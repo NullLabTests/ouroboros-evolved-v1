@@ -127,6 +127,7 @@ EXPECTED_TOOLS = [
     "check_reflection_status",
     # Visual generation
     "generate_system_portrait", "generate_goal_progress_chart",
+    "generate_health_dashboard", "generate_dynamic_badge",
 ]
 
 
