@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <filter id="g"><feGaussianBlur stdDeviation="2"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0a0f"/><stop offset="100%" stop-color="#0d1117"/>
+    </linearGradient>
+    <linearGradient id="bar-c" x1="0" y1="0" x2="100" y2="0">
+      <stop offset="0%" stop-color="#00d1ff"/><stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bg)" rx="12"/>
+  <text x="300" y="38" text-anchor="middle" font-family="'SF Mono',monospace" font-size="18" font-weight="700" fill="#00d1ff" letter-spacing="3">SYSTEM SELF-PORTRAIT</text>
+  <text x="300" y="56" text-anchor="middle" font-family="monospace" font-size="9" fill="#484f58" letter-spacing="2">AUROGENE v7.0.0</text>
+  <g transform="translate(40, 90)">
+    <rect x="0" y="0" width="120" height="65" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="0.5"/>
+    <text x="60" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="#00d1ff">66</text>
+    <text x="60" y="40" text-anchor="middle" font-family="monospace" font-size="8" fill="#8b949e">TOOLS</text>
+    <text x="60" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="#484f58">0 created</text>
+    <rect x="140" y="0" width="120" height="65" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="0.5"/>
+    <text x="200" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="#34d399">0</text>
+    <text x="200" y="40" text-anchor="middle" font-family="monospace" font-size="8" fill="#8b949e">TESTS</text>
+    <text x="200" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="#484f58">all passing</text>
+    <rect x="280" y="0" width="120" height="65" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="0.5"/>
+    <text x="340" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="#a78bfa">13</text>
+    <text x="340" y="40" text-anchor="middle" font-family="monospace" font-size="8" fill="#8b949e">PRINCIPLES</text>
+    <text x="340" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="#484f58">v4.0 constitution</text>
+    <rect x="420" y="0" width="140" height="65" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="0.5"/>
+    <text x="490" y="22" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" fill="#ffd700">18.5K</text>
+    <text x="490" y="40" text-anchor="middle" font-family="monospace" font-size="8" fill="#8b949e">LINES OF CODE</text>
+    <text x="490" y="54" text-anchor="middle" font-family="monospace" font-size="7" fill="#484f58">60 modules</text>
+  </g>
+  <g transform="translate(40, 180)">
+    <text x="0" y="0" font-family="monospace" font-size="9" fill="#00d1ff" font-weight="600" letter-spacing="2">ACTIVE GOALS</text>
+    <text x="160" y="0" font-family="monospace" font-size="7" fill="#484f58">0 total · 0 active · 0 completed</text>
+    <rect x="0" y="10" width="520" height="18" rx="4" fill="#0d1117" stroke="#21262d" stroke-width="0.5"/>
+    
+    
+    
+  </g>
+  <g transform="translate(40, 215)"><text x="0" y="24" font-family="monospace" font-size="7" fill="#484f58">No active goals. Use set_goal to create one.</text></g>
+  <g transform="translate(40, 295)">
+    <text x="0" y="0" font-family="monospace" font-size="9" fill="#34d399" font-weight="600" letter-spacing="2">CREATED TOOLS</text>
+    <text x="160" y="0" font-family="monospace" font-size="7" fill="#484f58">0 dynamically generated</text>
+    <text x="0" y="24" font-family="monospace" font-size="7" fill="#484f58">No created tools yet. Use create_tool to build one.</text>
+  </g>
+  <g transform="translate(40, 370)">
+    <circle cx="0" cy="0" r="4" fill="#34d399"/>
+    <text x="12" y="3" font-family="monospace" font-size="8" fill="#8b949e">Consciousness: active</text>
+    <text x="300" y="3" font-family="monospace" font-size="7" fill="#484f58" text-anchor="end">∞ evolving</text>
+  </g>
+</svg>

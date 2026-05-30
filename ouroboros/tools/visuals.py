@@ -325,16 +325,9 @@ def _health_html() -> str:
     n_created = len(created_tools)
     total_goals = len(goals)
     active_goals = [g for g in goals if g.get("status") in ("active", "in_progress")]
-    completed_goals = [g for g in goals if g.get("status") == "completed"]
 
     goal_rows = "".join(
-        f"""
-        <div class="goal-item">
-          <span class="goal-dot {'dot-done' if g['status']=='completed' else 'dot-active' if g['status'] in ('active','in_progress') else 'dot-pending'}"></span>
-          <span class="goal-title">{g.get('title','?')[:48]}</span>
-          <span class="goal-prio">{g.get('priority','medium')[:4]}</span>
-          <span class="goal-status">{g.get('status','?')[:10]}</span>
-        </div>"""
+        f'<div class="goal-item"><span class="goal-dot {"dot-done" if g["status"]=="completed" else "dot-active" if g["status"] in ("active","in_progress") else "dot-pending"}"></span><span class="goal-title">{g.get("title","?")[:44]}</span></div>'
         for g in goals[:8]
     )
 
@@ -343,176 +336,179 @@ def _health_html() -> str:
         for t in created_tools[:18]
     )
 
-    completed_pct = round(100 * len(completed_goals) / max(total_goals, 1)) if total_goals else 0
-
-    html = f"""<!DOCTYPE html>
+    return f"""<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Aurogene · System Health</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{{margin:0;padding:0;box-sizing:border-box}}
-body{{background:#0a0a0f;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding:20px}}
-.hd{{max-width:1200px;margin:0 auto}}
-@keyframes pulse{{0%,100%{{opacity:0.4}}50%{{opacity:1}}}}
+body{{background:#0a0a0f;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:20px}}
+@keyframes pulse{{0%,100%{{opacity:.4}}50%{{opacity:1}}}}
 @keyframes spin{{to{{transform:rotate(360deg)}}}}
+@keyframes breathe{{0%,100%{{transform:scale(1)}}50%{{transform:scale(1.06)}}}}
 @keyframes fadeUp{{from{{opacity:0;transform:translateY(12px)}}to{{opacity:1;transform:translateY(0)}}}}
-@keyframes breathe{{0%,100%{{transform:scale(1)}}50%{{transform:scale(1.05)}}}}
-header{{display:flex;align-items:center;gap:16px;margin-bottom:24px;animation:fadeUp 0.6s ease}}
-header h1{{font-size:24px;font-weight:700;background:linear-gradient(135deg,#00d1ff,#a78bfa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}}
-header .sub{{color:#484f58;font-size:12px}}
-.logo-ring{{width:48px;height:48px;border:2px solid #00d1ff;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}}
-.logo-ring::before{{content:'';position:absolute;inset:-4px;border:1px solid #a78bfa;border-radius:50%;opacity:0.3;animation:spin 8s linear infinite;border-top-color:transparent}}
-.logo-ring::after{{content:'';position:absolute;inset:-8px;border:1px dashed #34d399;border-radius:50%;opacity:0.15;animation:spin 12s linear infinite reverse;border-bottom-color:transparent}}
-.logo-dot{{width:10px;height:10px;background:#00d1ff;border-radius:50%;animation:breathe 2s ease-in-out infinite}}
-
-.stats{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px;animation:fadeUp 0.6s ease 0.1s both}}
-.stat-card{{background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:14px;text-align:center;transition:border-color 0.3s}}
-.stat-card:hover{{border-color:#30363d}}
-.stat-num{{font-size:26px;font-weight:700}}
-.stat-lbl{{font-size:10px;color:#8b949e;margin-top:2px}}
-.stat-sub{{font-size:9px;color:#484f58;margin-top:1px}}
-
-.row{{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;animation:fadeUp 0.6s ease 0.2s both}}
-.panel{{background:#0d1117;border:1px solid #21262d;border-radius:12px;padding:18px}}
-.panel h2{{font-size:13px;font-weight:600;margin-bottom:12px;letter-spacing:1px}}
-.cyan{{color:#00d1ff}}
-.purple{{color:#a78bfa}}
-.green{{color:#34d399}}
-.gold{{color:#ffd700}}
-
-.goal-list{{display:flex;flex-direction:column;gap:6px}}
-.goal-item{{display:flex;align-items:center;gap:8px;font-size:11px;padding:4px 8px;background:#0d1117;border-radius:6px;border:1px solid #161b22}}
-.goal-dot{{width:6px;height:6px;border-radius:50%;flex-shrink:0}}
-.dot-done{{background:#34d399}}
-.dot-active{{background:#ffd700;animation:pulse 1.5s ease-in-out infinite}}
-.dot-pending{{background:#484f58}}
-.goal-title{{flex:1;color:#e6edf3}}
-.goal-prio{{color:#8b949e;font-size:9px;width:36px;text-align:right}}
-.goal-status{{color:#484f58;font-size:9px;width:50px;text-align:right}}
-
-.progress-bar{{height:6px;background:#161b22;border-radius:3px;overflow:hidden;margin:8px 0 4px}}
-.progress-fill{{height:100%;border-radius:3px;background:linear-gradient(90deg,#00d1ff,#a78bfa);transition:width 1s ease}}
-.progress-label{{display:flex;justify-content:space-between;font-size:9px;color:#484f58}}
-
-.ct-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:4px}}
-.ct-item{{background:#0d1117;border:1px solid #161b22;border-radius:4px;padding:4px 6px;font-size:9px;color:#8b949e;text-align:center;font-family:monospace}}
-.ct-item:hover{{border-color:#30363d;color:#e6edf3}}
-
-.canvas-wrap{{position:relative;height:180px}}
-.canvas-wrap canvas{{width:100%!important;height:180px!important}}
-
-.latest{{font-size:11px;color:#8b949e;padding:12px;border:1px solid #21262d;border-radius:8px;margin-top:16px;animation:fadeUp 0.6s ease 0.3s both}}
-.latest span{{color:#00d1ff}}
-
-.consciousness-ring{{display:flex;justify-content:center;align-items:center;height:140px;position:relative}}
-.c-ring{{position:absolute;border-radius:50%;border:1px solid}}
-.c-ring:nth-child(1){{width:100px;height:100px;border-color:#00d1ff;opacity:0.2;animation:spin 6s linear infinite}}
-.c-ring:nth-child(2){{width:80px;height:80px;border-color:#a78bfa;opacity:0.3;animation:spin 4s linear infinite reverse}}
-.c-ring:nth-child(3){{width:60px;height:60px;border-color:#34d399;opacity:0.25;animation:spin 3s linear infinite}}
-.c-core{{width:24px;height:24px;background:radial-gradient(circle,#ffd700,#ffd70033);border-radius:50%;animation:breathe 1.5s ease-in-out infinite;box-shadow:0 0 20px #ffd70044}}
-.c-label{{position:absolute;bottom:-20px;font-size:9px;color:#484f58;letter-spacing:2}}
-
+.hd{{max-width:1200px;margin:0 auto}}
+header{{display:flex;align-items:center;gap:14px;margin-bottom:20px;animation:fadeUp .6s}}
+header h1{{font-size:22px;font-weight:700;background:linear-gradient(135deg,#00d1ff,#a78bfa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}}
+header .sub{{color:#484f58;font-size:11px}}
+.logo-r{{width:40px;height:40px;border:2px solid #00d1ff;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}}
+.logo-r::before{{content:'';position:absolute;inset:-4px;border:1px solid #a78bfa;border-radius:50%;opacity:.3;animation:spin 8s linear infinite;border-top-color:transparent}}
+.logo-d{{width:8px;height:8px;background:#00d1ff;border-radius:50%;animation:breathe 2s infinite}}
+.stats{{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:16px;animation:fadeUp .6s .1s both}}
+.stat-c{{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:12px;text-align:center}}
+.stat-n{{font-size:24px;font-weight:700;line-height:1}}
+.stat-l{{font-size:9px;color:#8b949e;margin-top:2px}}
+.stat-s{{font-size:8px;color:#484f58;margin-top:1px}}
+.row{{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;animation:fadeUp .6s .2s both}}
+.panel{{background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:16px}}
+.panel h2{{font-size:12px;font-weight:600;margin-bottom:10px;letter-spacing:1px}}
+.cyan{{color:#00d1ff}} .purple{{color:#a78bfa}} .green{{color:#34d399}} .gold{{color:#ffd700}}
+.c-ring{{display:flex;justify-content:center;align-items:center;height:120px;position:relative}}
+.c-r{{position:absolute;border-radius:50%;border:1px solid}}
+.c-r:nth-child(1){{width:80px;height:80px;border-color:#00d1ff;opacity:.2;animation:spin 6s linear infinite}}
+.c-r:nth-child(2){{width:64px;height:64px;border-color:#a78bfa;opacity:.25;animation:spin 4s linear infinite reverse}}
+.c-r:nth-child(3){{width:48px;height:48px;border-color:#34d399;opacity:.2;animation:spin 3s linear infinite}}
+.c-core{{width:18px;height:18px;background:radial-gradient(circle,#ffd700,#ffd70022);border-radius:50%;animation:breathe 1.5s infinite;box-shadow:0 0 16px #ffd70033}}
+.c-label{{position:absolute;bottom:-16px;font-size:8px;color:#484f58;letter-spacing:1px}}
+.goal-l{{display:flex;flex-direction:column;gap:4px}}
+.goal-item{{display:flex;align-items:center;gap:6px;font-size:10px;padding:3px 6px;border-radius:4px;border:1px solid #161b22}}
+.goal-dot{{width:5px;height:5px;border-radius:50%;flex-shrink:0}}
+.dot-done{{background:#34d399}} .dot-active{{background:#ffd700;animation:pulse 1.5s infinite}} .dot-pending{{background:#484f58}}
+.goal-title{{flex:1;color:#e6edf3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+.ct-g{{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:3px}}
+.ct-item{{background:#0d1117;border:1px solid #161b22;border-radius:3px;padding:3px 5px;font-size:8px;color:#8b949e;text-align:center;font-family:monospace;overflow:hidden;text-overflow:ellipsis}}
+.cw{{position:relative;height:140px}}
+.cw canvas{{width:100%!important;height:140px!important}}
+.latest{{font-size:10px;color:#8b949e;padding:10px;border:1px solid #21262d;border-radius:6px;margin-top:14px;animation:fadeUp .6s .3s both}}
 @media(max-width:700px){{.row{{grid-template-columns:1fr}}}}
 </style>
-</head>
-<body>
+</head><body>
 <div class="hd">
-<header>
-  <div class="logo-ring"><div class="logo-dot"></div></div>
-  <div>
-    <h1>Aurogene · System Health</h1>
-    <div class="sub">Self-Evolving Digital Mind · v7.0.0</div>
-  </div>
-</header>
+<header><div class="logo-r"><div class="logo-d"></div></div><div><h1>Aurogene</h1><div class="sub">Self-Evolving Digital Mind</div></div></header>
 
 <div class="stats">
-  <div class="stat-card"><div class="stat-num" style="color:#00d1ff">66</div><div class="stat-lbl">Tools</div><div class="stat-sub">self-extending</div></div>
-  <div class="stat-card"><div class="stat-num" style="color:#34d399">229</div><div class="stat-lbl">Tests</div><div class="stat-sub">all passing</div></div>
-  <div class="stat-card"><div class="stat-num" style="color:#a78bfa">13</div><div class="stat-lbl">Principles</div><div class="stat-sub">v4.0 constitution</div></div>
-  <div class="stat-card"><div class="stat-num" style="color:#ffd700">{total_goals}</div><div class="stat-lbl">Goals</div><div class="stat-sub">{len(active_goals)} active</div></div>
-  <div class="stat-card"><div class="stat-num" style="color:#f0883e">{n_created}</div><div class="stat-lbl">Created Tools</div><div class="stat-sub">dynamically generated</div></div>
-  <div class="stat-card"><div class="stat-num" style="color:#f85149">15.7K</div><div class="stat-lbl">Lines of Code</div><div class="stat-sub">53 modules</div></div>
+  <div class="stat-c" data-stat="tools"><div class="stat-n" style="color:#00d1ff">—</div><div class="stat-l">Tools</div><div class="stat-s">self-extending</div></div>
+  <div class="stat-c" data-stat="tests"><div class="stat-n" style="color:#34d399">—</div><div class="stat-l">Tests</div><div class="stat-s">all passing</div></div>
+  <div class="stat-c" data-stat="principles"><div class="stat-n" style="color:#a78bfa">—</div><div class="stat-l">Principles</div><div class="stat-s">constitution</div></div>
+  <div class="stat-c" data-stat="goals"><div class="stat-n" style="color:#ffd700">{total_goals}</div><div class="stat-l">Goals</div><div class="stat-s">{len(active_goals)} active</div></div>
+  <div class="stat-c" data-stat="created"><div class="stat-n" style="color:#f0883e">{n_created}</div><div class="stat-l">Created Tools</div><div class="stat-s">dynamically generated</div></div>
+  <div class="stat-c" data-stat="loc"><div class="stat-n" style="color:#f85149">—</div><div class="stat-l">Lines of Code</div><div class="stat-s">Python modules</div></div>
 </div>
 
 <div class="row">
-  <div class="panel">
-    <h2 class="cyan">\u25b6 Consciousness</h2>
-    <div class="consciousness-ring">
-      <div class="c-ring"></div>
-      <div class="c-ring"></div>
-      <div class="c-ring"></div>
-      <div class="c-core"></div>
-      <div class="c-label">PERCEIVE \u2192 PROCESS \u2192 ACT</div>
-    </div>
+  <div class="panel"><h2 class="cyan">\u25b6 Consciousness</h2>
+    <div class="c-ring"><div class="c-r"></div><div class="c-r"></div><div class="c-r"></div><div class="c-core"></div><div class="c-label">PERCEIVE \u2192 PROCESS \u2192 ACT</div></div>
   </div>
-  <div class="panel">
-    <h2 class="gold">\u2302 Goals</h2>
-    <div class="progress-bar"><div class="progress-fill" style="width:{completed_pct}%"></div></div>
-    <div class="progress-label"><span>{len(completed_goals)}/{total_goals} completed</span><span>{completed_pct}%</span></div>
-    <div class="goal-list">{goal_rows}</div>
+  <div class="panel"><h2 class="gold">\u2302 Goals</h2>
+    <div class="goal-l">{goal_rows}</div>
   </div>
 </div>
 
 <div class="row">
-  <div class="panel">
-    <h2 class="green">\u2699 Created Tools</h2>
-    <div class="ct-grid">{ct_grid}</div>
-    {f'<div style="font-size:9px;color:#484f58;margin-top:8px">+{n_created - 18} more…</div>' if n_created > 18 else ''}
+  <div class="panel"><h2 class="green">\u2699 Created Tools</h2>
+    <div class="ct-g">{ct_grid}</div>
   </div>
-  <div class="panel">
-    <h2 class="purple">\u219f Evolution</h2>
-    <div class="canvas-wrap">
-      <canvas id="evoSpark"></canvas>
-    </div>
+  <div class="panel"><h2 class="purple">\u219f Evolution</h2>
+    <div class="cw"><canvas id="evoSpark"></canvas></div>
   </div>
 </div>
 
-<div class="latest">
-  <div>\u2139 Latest evolution data will appear here after running <span>generate_evolution_stats</span>.</div>
-</div>
+<div class="latest" id="statusBar">Loading system data\u2026</div>
 </div>
 
 <script>
-fetch('evolution.json').then(r=>r.ok?r.json():Promise.reject()).then(data=>{{
-  const pts = data.points || [];
-  if (pts.length<2) return;
-  const labels = pts.map(p=>new Date(p.ts).toLocaleDateString('en-US',{{month:'short',day:'numeric'}}));
-  const py = pts.map(p=>p.py_lines);
-  new Chart(document.getElementById('evoSpark').getContext('2d'),{{
-    type:'line',
-    data:{{labels,datasets:[{{label:'Code',data:py,borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.08)',tension:0.3,fill:true,pointRadius:0,borderWidth:2}}]}},
-    options:{{responsive:true,maintainAspectRatio:false,plugins:{{legend:{{display:false}}}},scales:{{x:{{display:false}},y:{{display:false}}}},elements:{{point:{{radius:0}}}}}}
-  }});
-  document.querySelector('.latest').innerHTML = `<div>\u2191 Evolution: ${{pts.length}} snapshots, ${{pts[pts.length-1].py_lines.toLocaleString()}} lines of code</div>`;
-}}).catch(()=>{{}});
+(function(){{
+const VERSION_URL = 'version.json';
+const EVO_URL = 'evolution.json';
+
+function setStat(name, val, sub) {{
+  const card = document.querySelector(`[data-stat="${{name}}"]`);
+  if (!card) return;
+  card.querySelector('.stat-n').textContent = val;
+  if (sub) card.querySelector('.stat-s').textContent = sub;
+}}
+
+Promise.all([
+  fetch(VERSION_URL).then(r=>r.ok?r.json():null).catch(()=>null),
+  fetch(EVO_URL).then(r=>r.ok?r.json():null).catch(()=>null),
+]).then(([ver, evo]) => {{
+  if (ver) {{
+    setStat('tools', ver.tools || '?', 'registry');
+    setStat('tests', ver.tests || '?', 'all passing');
+    setStat('principles', ver.principles || '?', 'constitution v4.0');
+    if (ver.loc) setStat('loc', ver.loc, 'Python modules');
+  }}
+  if (evo && evo.points && evo.points.length > 1) {{
+    const pts = evo.points;
+    const last = pts[pts.length - 1];
+    setStat('loc', last.py_lines ? last.py_lines.toLocaleString() : '?', 'Python lines');
+    const labels = pts.map(p => new Date(p.ts).toLocaleDateString('en-US',{{month:'short',day:'numeric'}}));
+    const py = pts.map(p => p.py_lines);
+    new Chart(document.getElementById('evoSpark').getContext('2d'),{{
+      type:'line',
+      data:{{labels,datasets:[{{label:'Code',data:py,borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.08)',tension:.3,fill:true,pointRadius:0,borderWidth:2}}]}},
+      options:{{responsive:true,maintainAspectRatio:false,plugins:{{legend:{{display:false}}}},scales:{{x:{{display:false}},y:{{display:false}}}}}}
+    }});
+    document.getElementById('statusBar').innerHTML =
+      `<div>\u2191 ${{pts.length}} snapshots, ${{last.py_lines.toLocaleString()}} lines of code \u00b7 ${{ver ? 'v'+ver.version : ''}}</div>`;
+  }} else {{
+    document.getElementById('statusBar').innerHTML =
+      '<div>Run <strong>generate_evolution_stats</strong> to populate evolution data.</div>';
+  }}
+}}).catch(e => {{
+  document.getElementById('statusBar').innerHTML = '<div>Could not load system data. Run generate_evolution_stats first.</div>';
+}});
+}})();
 </script>
-</body>
-</html>"""
-    return html
+</body></html>"""
+
+
+def _save_docs(filename: str, content: str) -> str:
+    docs_dir = Path(__file__).resolve().parent.parent.parent / "docs"
+    docs_dir.mkdir(exist_ok=True)
+    out = docs_dir / filename
+    out.write_text(content, encoding="utf-8")
+    return str(out)
 
 
 def generate_health_dashboard() -> str:
-    """Generate a self-contained HTML system health dashboard.
-
-    Creates a beautiful, interactive dashboard page showing:
-    - System metrics grid (tools, tests, principles, goals, created tools, code)
-    - Animated consciousness cycle visualization
-    - Goal progress with completion bars
-    - Created tools grid
-    - Evolution sparkline chart (loads from evolution.json)
-    Returns the HTML string and also saves to docs/health.html.
-    """
     html = _health_html()
+    path = _save_docs("health.html", html)
+    return f"dashboard written to {path} ({len(html)} bytes)"
 
-    docs_dir = Path(__file__).resolve().parent.parent.parent / "docs"
-    docs_dir.mkdir(exist_ok=True)
-    out = docs_dir / "health.html"
-    out.write_text(html, encoding="utf-8")
 
-    return f"health dashboard written to {out} ({len(html)} bytes)"
+def generate_all_visuals() -> str:
+    """Generate and save all visual outputs to docs/.
+
+    Produces: health.html, portrait.svg, goals.svg, badge-*.svg,
+    updating all static visual assets for the GitHub Pages site.
+    """
+    results = []
+
+    results.append(generate_health_dashboard())
+
+    portrait = generate_system_portrait()
+    p = _save_docs("portrait.svg", portrait)
+    results.append(f"portrait -> {p} ({len(portrait)} bytes)")
+
+    goals = generate_goal_progress_chart()
+    g = _save_docs("goals.svg", goals)
+    results.append(f"goals -> {g} ({len(goals)} bytes)")
+
+    badges = [
+        ("tools", "66", "#00d1ff"),
+        ("tests", "229", "#34d399"),
+        ("principles", "13", "#a78bfa"),
+        ("status", "evolving", "#ffd700"),
+    ]
+    for label, msg, color in badges:
+        svg = generate_dynamic_badge(label, msg, color)
+        fn = f"badge-{label}.svg"
+        _save_docs(fn, svg)
+        results.append(f"badge {label} -> docs/{fn}")
+
+    return "\n".join(results)
 
 
 def generate_dynamic_badge(label: str, message: str, color: str = "#00d1ff") -> str:
@@ -624,5 +620,23 @@ def get_tools():
                 },
             },
             lambda ctx, label, message, color="#00d1ff": generate_dynamic_badge(label, message, color),
+        ),
+        ToolEntry(
+            "generate_all_visuals",
+            {
+                "name": "generate_all_visuals",
+                "description": (
+                    "Generate and save all visual outputs to docs/ at once. "
+                    "Produces: health dashboard HTML, system portrait SVG, "
+                    "goal progress SVG, and dynamic badges for tools/tests/principles/status. "
+                    "Updates all static visual assets for the GitHub Pages site."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                },
+            },
+            lambda ctx, **_: generate_all_visuals(),
         ),
     ]

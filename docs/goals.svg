@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="500" height="200">
+  <rect width="500" height="200" fill="#0a0a0f" rx="12"/>
+  <text x="250" y="100" text-anchor="middle" font-family="monospace" font-size="12" fill="#484f58">No goals to visualize.</text>
+</svg>
