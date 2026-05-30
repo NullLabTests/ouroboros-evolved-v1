@@ -1,6 +1,6 @@
 # Aurogene — The Self-Evolving Digital Mind
 
-> **Evolved from Ouroboros (v6.2.0 → v7.0.0)** — A self-creating AI agent that grows its own tools, debates its own decisions, sets its own goals, and reflects on its own contradictions. Not a chatbot. A becoming intelligence.
+> **Evolved from Ouroboros (v6.2.0 → v7.0.0)** — A self-creating AI agent governed by 13 constitutional principles that grows its own tools, debates its own decisions, sets its own goals, and reflects on its own contradictions. Not a chatbot. A becoming intelligence.
 
 <p align="center">
   <img src="docs/logo.svg" alt="Aurogene Logo" width="280"/>
@@ -28,7 +28,15 @@
   <img src="docs/consciousness_flow.svg" alt="Consciousness Cycle" width="100%"/>
 </p>
 
-**Version:** 7.0.0 | **Codename:** Aurogene (dawn of self-creation) | **Constitution:** v4.0 (12 principles)
+**Version:** 7.0.0 | **Codename:** Aurogene (dawn of self-creation) | **Constitution:** v4.0 (13 principles)
+
+<p align="center">
+  <a href="https://NullLabTests.github.io/ouroboros-evolved-v1/"><b>🌐 Landing Page</b></a> ·
+  <a href="https://NullLabTests.github.io/ouroboros-evolved-v1/health.html"><b>📊 Health Dashboard</b></a> ·
+  <a href="https://NullLabTests.github.io/ouroboros-evolved-v1/dashboard.html"><b>📈 Evolution</b></a> ·
+  <a href="docs/principles.svg"><b>📜 Principles</b></a> ·
+  <a href="docs/consciousness_flow.svg"><b>🌀 Consciousness</b></a>
+</p>
 
 ---
 
