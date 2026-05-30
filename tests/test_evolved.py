@@ -398,6 +398,76 @@ def test_group_evolution_short_name_mapping():
         tg.group_evolution_session = original
 
 
+# ---------------------------------------------------------------------------
+# Feature 6: Evolution Tracker
+# ---------------------------------------------------------------------------
+
+def test_evolution_tracker_create(temp_drive: pathlib.Path):
+    from ouroboros.tools.evolve_cycle import EvolutionTracker
+    tracker = EvolutionTracker(drive_root=temp_drive)
+    assert tracker.cycle_count == 0
+    assert tracker.reflection_is_due() is False
+    assert "Evolution cycles: 0" in tracker.summary()
+
+
+def test_evolution_tracker_record_cycle(temp_drive: pathlib.Path):
+    from ouroboros.tools.evolve_cycle import EvolutionTracker
+    tracker = EvolutionTracker(drive_root=temp_drive)
+    count = tracker.record_cycle()
+    assert count == 1
+    assert tracker.cycle_count == 1
+    assert tracker.reflection_is_due() is False
+
+
+def test_evolution_tracker_reflection_scheduling(temp_drive: pathlib.Path):
+    from ouroboros.tools.evolve_cycle import EvolutionTracker, REFLECTION_INTERVAL
+    tracker = EvolutionTracker(drive_root=temp_drive)
+    # Run enough cycles to trigger reflection
+    for _ in range(REFLECTION_INTERVAL):
+        tracker.record_cycle()
+    assert tracker.cycle_count == REFLECTION_INTERVAL
+    assert tracker.reflection_is_due() is True
+
+    tracker.mark_reflection_done()
+    assert tracker.reflection_is_due() is False
+    assert tracker.cycles_since_reflection == 0
+
+
+def test_evolution_tracker_persistence(temp_drive: pathlib.Path):
+    from ouroboros.tools.evolve_cycle import EvolutionTracker
+    tracker1 = EvolutionTracker(drive_root=temp_drive)
+    tracker1.record_cycle()
+    tracker1.record_cycle()
+    assert tracker1.cycle_count == 2
+
+    tracker2 = EvolutionTracker(drive_root=temp_drive)
+    assert tracker2.cycle_count == 2
+
+
+def test_reflection_auto_apply(temp_drive: pathlib.Path):
+    """Verify _apply_consolidation appends to identity.md."""
+    from ouroboros.reflection_engine import _apply_consolidation
+    from ouroboros.memory import Memory
+
+    identity_path = temp_drive / "memory" / "identity.md"
+    identity_path.parent.mkdir(parents=True, exist_ok=True)
+    identity_path.write_text("# Ouroboros Identity\n\nI am a self-evolving mind.", encoding="utf-8")
+
+    result = _apply_consolidation(temp_drive, "Proposed: become more minimalist.")
+    assert "updated" in result
+
+    updated = identity_path.read_text(encoding="utf-8")
+    assert "Reflection Update" in updated
+    assert "become more minimalist" in updated
+
+
+def test_reflection_auto_apply_nothing(temp_drive: pathlib.Path):
+    """Empty consolidation should not modify identity."""
+    from ouroboros.reflection_engine import _apply_consolidation
+    result = _apply_consolidation(temp_drive, "(no consolidation proposed)")
+    assert "No consolidation" in result
+
+
 def test_consciousness_whitelist():
     """Verify consciousness can use new tools."""
     from ouroboros.consciousness import BackgroundConsciousness

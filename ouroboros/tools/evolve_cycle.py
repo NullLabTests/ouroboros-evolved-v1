@@ -18,12 +18,13 @@ __all__ = [
     "get_tools",
 ]
 
+import json
 import logging
 import os
 import pathlib
 import re
 import subprocess
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from ouroboros.utils import get_git_info, read_text, run_cmd, utc_now_iso, write_text
 
@@ -42,6 +43,80 @@ CHANGE_BREAKING = "breaking"      # MAJOR — philosophy/architecture
 CHANGE_FEATURE = "feature"        # MINOR — new capabilities
 CHANGE_FIX = "fix"               # PATCH — fixes, improvements
 CHANGE_DOC = "documentation"     # PATCH — docs only
+
+# How many evolution cycles between scheduled reflections
+REFLECTION_INTERVAL = 10
+
+
+class EvolutionTracker:
+    """Tracks evolution cycle count and schedules reflection cycles.
+
+    Persists state to drive/memory/evolution_state.json so counts
+    survive restarts.
+
+    Philosophy: P1 (Continuity — learning across cycles),
+    P6 (Becoming — scheduled self-assessment).
+    """
+
+    def __init__(self, drive_root: pathlib.Path):
+        self._path = drive_root / "memory" / "evolution_state.json"
+        self._state = self._load()
+
+    def _load(self) -> Dict[str, Any]:
+        if self._path.exists():
+            try:
+                return json.loads(self._path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        return {"cycle_count": 0, "last_reflection_cycle": 0, "last_reflection_ts": ""}
+
+    def _save(self) -> None:
+        self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._path.write_text(json.dumps(self._state, indent=2), encoding="utf-8")
+
+    def record_cycle(self) -> int:
+        """Increment cycle count and return the new count."""
+        self._state["cycle_count"] += 1
+        self._save()
+        return self._state["cycle_count"]
+
+    def reflection_is_due(self) -> bool:
+        """True if enough cycles have passed since last reflection."""
+        return (self._state["cycle_count"] - self._state["last_reflection_cycle"]
+                >= REFLECTION_INTERVAL)
+
+    def mark_reflection_done(self) -> None:
+        """Record that a reflection cycle was completed."""
+        self._state["last_reflection_cycle"] = self._state["cycle_count"]
+        self._state["last_reflection_ts"] = utc_now_iso()
+        self._save()
+
+    @property
+    def cycle_count(self) -> int:
+        return self._state["cycle_count"]
+
+    @property
+    def cycles_since_reflection(self) -> int:
+        return self._state["cycle_count"] - self._state["last_reflection_cycle"]
+
+    @property
+    def state(self) -> Dict[str, Any]:
+        return dict(self._state)
+
+    def summary(self) -> str:
+        s = self._state
+        next_at = s["last_reflection_cycle"] + REFLECTION_INTERVAL
+        return (
+            f"Evolution cycles: {s['cycle_count']} | "
+            f"Last reflection: cycle {s['last_reflection_cycle']} "
+            f"({s['last_reflection_ts'][:10] or 'never'}) | "
+            f"Next reflection due: cycle {next_at}"
+        )
+
+
+def _get_tracker(ctx) -> EvolutionTracker:
+    """Get or create an EvolutionTracker from a ToolContext."""
+    return EvolutionTracker(drive_root=ctx.drive_root)
 
 
 def classify_change(files_changed: List[str]) -> str:
@@ -457,8 +532,33 @@ def _run_evolution_cycle(ctx, description: str = "",
     except Exception as e:
         log_messages.append(f"Git error: {e}")
 
+    # Track evolution cycle
+    try:
+        tracker = _get_tracker(ctx)
+        count = tracker.record_cycle()
+        log_messages.append(f"Evolution cycle #{count} recorded")
+        if tracker.reflection_is_due():
+            log_messages.append(
+                f"⚠️ Reflection due: {tracker.cycles_since_reflection} "
+                f"cycles since last reflection (threshold: {REFLECTION_INTERVAL}). "
+                f"Run deep_reflect to assess progress."
+            )
+    except Exception as e:
+        log_messages.append(f"Tracker error: {e}")
+
     log_messages.insert(0, f"## Evolution Cycle Complete: v{current_version} → v{proposed_version}")
     return "\n".join(log_messages)
+
+
+def _check_reflection_status(ctx) -> str:
+    """Check whether a reflection cycle is due based on evolution count."""
+    tracker = _get_tracker(ctx)
+    if tracker.reflection_is_due():
+        return (
+            f"⚠️ Reflection is overdue.\n{tracker.summary()}\n\n"
+            f"Run deep_reflect to maintain self-awareness (P1, P6)."
+        )
+    return f"✅ Reflection not due yet.\n{tracker.summary()}"
 
 
 def get_tools() -> List[Any]:
@@ -529,5 +629,20 @@ def get_tools() -> List[Any]:
             _run_evolution_cycle,
             timeout_sec=120,
             is_code_tool=True,
+        ),
+        ToolEntry(
+            "check_reflection_status",
+            {
+                "name": "check_reflection_status",
+                "description": (
+                    "Check whether a scheduled reflection is due based on evolution "
+                    "cycle count. Returns how many cycles since last reflection and "
+                    "whether the threshold (10 cycles) has been reached. "
+                    "Run this periodically or after evolution cycles."
+                ),
+                "parameters": {"type": "object", "properties": {}, "required": []},
+            },
+            _check_reflection_status,
+            timeout_sec=5,
         ),
     ]

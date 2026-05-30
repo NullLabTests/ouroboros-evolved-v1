@@ -124,6 +124,9 @@ EXPECTED_TOOLS = [
     # Evolution automation
     "propose_evolution",
     "run_evolution_cycle",
+    "check_reflection_status",
+    # Visual generation
+    "generate_system_portrait", "generate_goal_progress_chart",
 ]
 
 

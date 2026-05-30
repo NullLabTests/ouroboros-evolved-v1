@@ -75,6 +75,11 @@ def contrastive_reflection(
     total_cost += consolidation_cost
 
     reflection = _format_reflection(contradictions_text, patterns_text, consolidation_text)
+
+    # Auto-apply consolidation to identity.md (closes the feedback loop)
+    apply_result = _apply_consolidation(drive_root, consolidation_text)
+    reflection += f"\n\n*Auto-apply: {apply_result}*"
+
     return reflection, round(total_cost, 6)
 
 
@@ -241,6 +246,38 @@ def _format_tasks(entries: List[Dict]) -> str:
         result_preview = str(e.get("result", ""))[:200].replace("\n", " ")
         lines.append(f"- [{tid}] status={status} cost=${cost:.3f} rounds={rounds}: {result_preview}")
     return "\n".join(lines)
+
+
+def _apply_consolidation(drive_root: pathlib.Path, consolidation: str) -> str:
+    """Apply consolidation recommendations to identity.md.
+
+    Extracts actionable updates from consolidation text and appends them
+    to identity.md as a "reflection update" section with timestamp.
+
+    Args:
+        drive_root: Drive root path for identity.md.
+        consolidation: The consolidation text from reflection.
+
+    Returns:
+        Description of what was applied, or a message if nothing to apply.
+    """
+    if not consolidation or "(no consolidation proposed)" in consolidation:
+        return "No consolidation to apply."
+
+    mem = Memory(drive_root=drive_root, repo_dir=None)
+    identity_path = mem.identity_path()
+    if not identity_path.exists():
+        return "Identity file not found."
+
+    current = identity_path.read_text(encoding="utf-8")
+    ts = utc_now_iso()[:16]
+    update_block = (
+        f"\n\n## Reflection Update ({ts})\n\n"
+        f"The following consolidations were identified during reflection:\n\n"
+        f"{consolidation}\n"
+    )
+    identity_path.write_text(current + update_block, encoding="utf-8")
+    return f"Identity updated with consolidation ({len(consolidation)} chars)."
 
 
 def _format_reflection(contradictions: str, patterns: str, consolidation: str) -> str:

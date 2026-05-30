@@ -95,6 +95,7 @@ CORE_TOOL_NAMES = {
     "deep_reflect",
     "set_goal", "update_goal", "list_goals", "delete_goal",
     "propose_evolution", "run_evolution_cycle",
+    "check_reflection_status",
 }
 
 

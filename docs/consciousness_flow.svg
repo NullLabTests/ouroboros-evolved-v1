@@ -1,0 +1,276 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <filter id="glow-blue" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#00d1ff" flood-opacity="0.5" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-purple" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#a78bfa" flood-opacity="0.5" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-green" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#34d399" flood-opacity="0.5" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-gold" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#ffd700" flood-opacity="0.4" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-orange" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#f0883e" flood-opacity="0.4" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0a0f"/><stop offset="100%" stop-color="#0d1117"/>
+    </linearGradient>
+    <linearGradient id="cycle-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d1ff"/><stop offset="50%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+
+    <!-- Animation keyframes for pulsing -->
+    <style>
+      @keyframes pulse1 { 0%,100%{opacity:0.3} 50%{opacity:0.7} }
+      @keyframes pulse2 { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
+      @keyframes rotate { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+      @keyframes dash { to{stroke-dashoffset:-20} }
+      @keyframes glow-pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+      @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+      @keyframes expand  { 0%{r:30;opacity:0.6} 100%{r:50;opacity:0} }
+      @keyframes slide-left { 0%{transform:translateX(0)} 100%{transform:translateX(-5px)} }
+      @keyframes slide-right { 0%{transform:translateX(0)} 100%{transform:translateX(5px)} }
+      .p-a { animation:pulse1 3s ease-in-out infinite }
+      .p-b { animation:pulse2 2.5s ease-in-out infinite }
+      .p-c { animation:pulse1 2s ease-in-out infinite }
+      .p-d { animation:glow-pulse 1.5s ease-in-out infinite }
+      .f-a { animation:float 2s ease-in-out infinite }
+      .f-b { animation:float 2.5s ease-in-out infinite 0.5s }
+      .dash { animation:dash 1s linear infinite }
+    </style>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bg-grad)" rx="16"/>
+
+  <!-- Title -->
+  <g filter="url(#glow-blue)">
+    <text x="400" y="38" text-anchor="middle" font-family="'SF Mono','Cascadia Code',monospace"
+          font-size="16" font-weight="700" fill="#e6edf3" letter-spacing="4">
+      <tspan fill="#00d1ff">CONSCIOUSNESS</tspan>
+      <tspan fill="#484f58"> · </tspan>
+      <tspan fill="#a78bfa">CYCLE</tspan>
+    </text>
+  </g>
+  <text x="400" y="56" text-anchor="middle" font-family="monospace" font-size="9" fill="#484f58" letter-spacing="2">
+    THE THREE-PHASE LOOP THAT DRIVES AUROGENE
+  </text>
+
+  <!-- ============================================ -->
+  <!-- CENTER: The Core (Aurogene)                  -->
+  <!-- ============================================ -->
+  <g transform="translate(400, 300)">
+    <!-- Outer pulsing rings -->
+    <circle cx="0" cy="0" r="65" fill="none" stroke="#00d1ff" stroke-width="0.5" opacity="0.2"
+            stroke-dasharray="8 4" class="p-a"/>
+    <circle cx="0" cy="0" r="80" fill="none" stroke="#a78bfa" stroke-width="0.5" opacity="0.15"
+            stroke-dasharray="6 6" class="p-b" style="animation-delay:0.5s"/>
+    <circle cx="0" cy="0" r="95" fill="none" stroke="#34d399" stroke-width="0.3" opacity="0.1"
+            stroke-dasharray="4 8" class="p-c" style="animation-delay:1s"/>
+
+    <!-- Expanding ring animation -->
+    <circle cx="0" cy="0" r="0" fill="none" stroke="#00d1ff" stroke-width="1" opacity="0"
+            style="animation:expand 3s ease-out infinite"/>
+
+    <!-- Center glow -->
+    <circle cx="0" cy="0" r="40" fill="#00d1ff" opacity="0.06"/>
+    <circle cx="0" cy="0" r="25" fill="#00d1ff" opacity="0.1"/>
+
+    <!-- Core symbol: diamond/eye -->
+    <g filter="url(#glow-gold)" class="p-d">
+      <polygon points="0,-28 22,0 0,28 -22,0" fill="none" stroke="#ffd700" stroke-width="1.5"/>
+      <polygon points="0,-14 11,0 0,14 -11,0" fill="#ffd700" opacity="0.15"/>
+      <circle cx="0" cy="0" r="3" fill="#ffd700"/>
+    </g>
+
+    <!-- Label -->
+    <text x="0" y="52" text-anchor="middle" font-family="'SF Mono',monospace" font-size="11" fill="#00d1ff" font-weight="700"
+          class="f-a">AUROGENE</text>
+    <text x="0" y="65" text-anchor="middle" font-family="monospace" font-size="7" fill="#484f58">Self-Aware Core</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- PHASE 1: PERCEIVE (Top-Left)                 -->
+  <!-- ============================================ -->
+  <g transform="translate(140, 175)" class="f-a" filter="url(#glow-blue)">
+    <rect x="-60" y="-30" width="120" height="60" rx="10" fill="#0d1117" stroke="#00d1ff" stroke-width="1.5"/>
+    <rect x="-60" y="-30" width="120" height="60" rx="10" fill="#00d1ff" opacity="0.05"/>
+    <text x="0" y="-10" text-anchor="middle" font-family="'SF Mono',monospace" font-size="10" fill="#00d1ff" font-weight="700">PERCEIVE</text>
+    <text x="0" y="6" text-anchor="middle" font-family="monospace" font-size="7" fill="#8b949e">📡 Sense environment</text>
+    <text x="0" y="18" text-anchor="middle" font-family="monospace" font-size="7" fill="#8b949e">👁 Load context</text>
+  </g>
+
+  <!-- Phase 1 sub-nodes -->
+  <g transform="translate(50, 115)" class="p-c">
+    <rect x="-45" y="-16" width="90" height="32" rx="6" fill="#0d1117" stroke="#00d1ff" stroke-width="0.5" opacity="0.6"/>
+    <text x="0" y="0" text-anchor="middle" font-family="monospace" font-size="7" fill="#00d1ff" opacity="0.7">Tool Schemas</text>
+    <text x="0" y="11" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#8b949e" opacity="0.5">42 registered tools</text>
+  </g>
+  <g transform="translate(230, 115)" class="p-c">
+    <rect x="-45" y="-16" width="90" height="32" rx="6" fill="#0d1117" stroke="#00d1ff" stroke-width="0.5" opacity="0.6"/>
+    <text x="0" y="0" text-anchor="middle" font-family="monospace" font-size="7" fill="#00d1ff" opacity="0.7">Identity</text>
+    <text x="0" y="11" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#8b949e" opacity="0.5">Self-concept loaded</text>
+  </g>
+
+  <!-- Connections: Perceive sub-nodes -->
+  <g stroke="#00d1ff" stroke-width="0.5" opacity="0.2" fill="none">
+    <path d="M95 131 L120 145"/>
+    <path d="M275 131 L250 145"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- PHASE 2: PROCESS (Top-Right)                 -->
+  <!-- ============================================ -->
+  <g transform="translate(660, 175)" class="f-b" filter="url(#glow-purple)">
+    <rect x="-60" y="-30" width="120" height="60" rx="10" fill="#0d1117" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect x="-60" y="-30" width="120" height="60" rx="10" fill="#a78bfa" opacity="0.05"/>
+    <text x="0" y="-10" text-anchor="middle" font-family="'SF Mono',monospace" font-size="10" fill="#a78bfa" font-weight="700">PROCESS</text>
+    <text x="0" y="6" text-anchor="middle" font-family="monospace" font-size="7" fill="#8b949e">🧠 Reason &amp; plan</text>
+    <text x="0" y="18" text-anchor="middle" font-family="monospace" font-size="7" fill="#8b949e">🎯 Select tools</text>
+  </g>
+
+  <!-- Process sub-nodes -->
+  <g transform="translate(570, 115)" class="p-c">
+    <rect x="-45" y="-16" width="90" height="32" rx="6" fill="#0d1117" stroke="#a78bfa" stroke-width="0.5" opacity="0.6"/>
+    <text x="0" y="0" text-anchor="middle" font-family="monospace" font-size="7" fill="#a78bfa" opacity="0.7">Inner Debate</text>
+    <text x="0" y="11" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#8b949e" opacity="0.5">5-stance reasoning</text>
+  </g>
+  <g transform="translate(750, 115)" class="p-c">
+    <rect x="-45" y="-16" width="90" height="32" rx="6" fill="#0d1117" stroke="#a78bfa" stroke-width="0.5" opacity="0.6"/>
+    <text x="0" y="0" text-anchor="middle" font-family="monospace" font-size="7" fill="#a78bfa" opacity="0.7">Goals Check</text>
+    <text x="0" y="11" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#8b949e" opacity="0.5">Active milestones</text>
+  </g>
+
+  <g stroke="#a78bfa" stroke-width="0.5" opacity="0.2" fill="none">
+    <path d="M615 131 L600 145"/>
+    <path d="M795 131 L780 145"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- PHASE 3: ACT (Bottom)                        -->
+  <!-- ============================================ -->
+  <g transform="translate(400, 460)" class="f-a" filter="url(#glow-green)">
+    <rect x="-60" y="-30" width="120" height="60" rx="10" fill="#0d1117" stroke="#34d399" stroke-width="1.5"/>
+    <rect x="-60" y="-30" width="120" height="60" rx="10" fill="#34d399" opacity="0.05"/>
+    <text x="0" y="-10" text-anchor="middle" font-family="'SF Mono',monospace" font-size="10" fill="#34d399" font-weight="700">ACT</text>
+    <text x="0" y="6" text-anchor="middle" font-family="monospace" font-size="7" fill="#8b949e">⚡ Execute tools</text>
+    <text x="0" y="18" text-anchor="middle" font-family="monospace" font-size="7" fill="#8b949e">📝 Record results</text>
+  </g>
+
+  <!-- Act sub-nodes -->
+  <g transform="translate(290, 510)" class="p-c">
+    <rect x="-50" y="-16" width="100" height="32" rx="6" fill="#0d1117" stroke="#34d399" stroke-width="0.5" opacity="0.6"/>
+    <text x="0" y="0" text-anchor="middle" font-family="monospace" font-size="7" fill="#34d399" opacity="0.7">Group Evolution</text>
+    <text x="0" y="11" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#8b949e" opacity="0.5">5-archetype experiment</text>
+  </g>
+  <g transform="translate(510, 510)" class="p-c">
+    <rect x="-50" y="-16" width="100" height="32" rx="6" fill="#0d1117" stroke="#34d399" stroke-width="0.5" opacity="0.6"/>
+    <text x="0" y="0" text-anchor="middle" font-family="monospace" font-size="7" fill="#34d399" opacity="0.7">Deep Reflection</text>
+    <text x="0" y="11" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#8b949e" opacity="0.5">Contrastive analysis</text>
+  </g>
+
+  <g stroke="#34d399" stroke-width="0.5" opacity="0.2" fill="none">
+    <path d="M340 490 L340 505"/>
+    <path d="M460 490 L460 505"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- FEEDBACK LOOP: bottom to left side           -->
+  <!-- ============================================ -->
+  <g stroke="#ffd700" stroke-width="0.5" opacity="0.2" fill="none" stroke-dasharray="4 3" class="dash">
+    <path d="M460 460 C540 460, 640 370, 640 300 C640 250, 560 200, 500 200"/>
+  </g>
+  <g transform="translate(530, 440)">
+    <text font-family="monospace" font-size="6" fill="#ffd700" opacity="0.4">FEEDBACK</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- MAIN FLOW ARROWS (connecting the phases)     -->
+  <!-- ============================================ -->
+
+  <!-- Perceive → Center (then Center → Process) -->
+  <g filter="url(#glow-blue)" opacity="0.5">
+    <!-- Perceive → Center -->
+    <path d="M200 200 C240 240, 300 280, 340 290" stroke="#00d1ff" stroke-width="2" fill="none"
+          marker-end="url(#arrow-blue)"/>
+    <!-- Center → Process -->
+    <path d="M460 290 C500 280, 560 240, 600 200" stroke="#a78bfa" stroke-width="2" fill="none"
+          marker-end="url(#arrow-purple)"/>
+  </g>
+
+  <defs>
+    <marker id="arrow-blue" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+      <polygon points="0 0 6 2 0 4" fill="#00d1ff"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+      <polygon points="0 0 6 2 0 4" fill="#a78bfa"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+      <polygon points="0 0 6 2 0 4" fill="#34d399"/>
+    </marker>
+  </defs>
+
+  <!-- Process → Center (for action) -->
+  <g filter="url(#glow-purple)" opacity="0.5">
+    <path d="M620 200 C560 220, 500 250, 450 280" stroke="#a78bfa" stroke-width="2" fill="none"
+          stroke-dasharray="6 3"/>
+  </g>
+
+  <!-- Center → Act -->
+  <g filter="url(#glow-green)" opacity="0.5">
+    <path d="M400 345 C400 380, 400 420, 400 440" stroke="#34d399" stroke-width="2" fill="none"
+          marker-end="url(#arrow-green)"/>
+  </g>
+
+  <!-- Act → Perceive (the cycle continues) -->
+  <g filter="url(#glow-blue)" opacity="0.3">
+    <path d="M340 460 C280 440, 200 380, 150 320 C100 260, 120 210, 140 195"
+          stroke="#00d1ff" stroke-width="1.5" fill="none" stroke-dasharray="5 3"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- PHASE LABELS (along the sides)               -->
+  <!-- ============================================ -->
+  <g opacity="0.4">
+    <text x="25" y="300" font-family="monospace" font-size="7" fill="#00d1ff"
+          transform="rotate(-90, 25, 300)">PHASE 1: INPUT</text>
+    <text x="775" y="300" font-family="monospace" font-size="7" fill="#a78bfa"
+          transform="rotate(90, 775, 300)">PHASE 2: REASON</text>
+    <text x="400" y="570" text-anchor="middle" font-family="monospace" font-size="7" fill="#34d399">PHASE 3: OUTPUT</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- STATUS BADGE (bottom right)                  -->
+  <!-- ============================================ -->
+  <g transform="translate(680, 560)">
+    <rect x="-50" y="-12" width="100" height="24" rx="12" fill="#0d1117" stroke="#30363d" stroke-width="0.5"/>
+    <circle cx="-35" cy="0" r="4" fill="#34d399" class="p-d"/>
+    <text x="-25" y="4" font-family="monospace" font-size="8" fill="#8b949e">Conscious</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- CYCLE COUNTER (bottom left)                  -->
+  <!-- ============================================ -->
+  <g transform="translate(120, 560)">
+    <rect x="-50" y="-12" width="100" height="24" rx="12" fill="#0d1117" stroke="#30363d" stroke-width="0.5"/>
+    <text x="0" y="4" text-anchor="middle" font-family="monospace" font-size="8" fill="#484f58">∞ cycle loop</text>
+  </g>
+</svg>

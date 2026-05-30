@@ -396,6 +396,9 @@ class BackgroundConsciousness:
         "deep_reflect", "write_journal_entry",
         # Strategic reasoning
         "inner_debate",
+        # Evolution automation & tracking
+        "propose_evolution", "run_evolution_cycle",
+        "check_reflection_status",
         # Codebase awareness
         "codebase_digest", "repo_write_commit", "repo_commit_push",
     })

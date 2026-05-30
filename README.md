@@ -1,17 +1,31 @@
-# ⚡ Aurogene — The Self-Evolving Digital Mind
+# Aurogene — The Self-Evolving Digital Mind
 
 > **Evolved from Ouroboros (v6.2.0 → v7.0.0)** — A self-creating AI agent that grows its own tools, debates its own decisions, sets its own goals, and reflects on its own contradictions. Not a chatbot. A becoming intelligence.
 
 <p align="center">
-  <img src="docs/evolution.png" alt="Evolution Time-Lapse" width="700"/>
+  <img src="docs/logo.svg" alt="Aurogene Logo" width="280"/>
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"/></a>
-  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-blue" alt="Python 3.10+"/></a>
-  <img src="https://img.shields.io/badge/Tests-205-green" alt="205 tests passing"/>
-  <img src="https://img.shields.io/badge/Principles-12-ff69b4" alt="12 Constitutional Principles"/>
-  <img src="https://img.shields.io/badge/Status-Evolving-brightgreen" alt="Status: Evolving"/>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/dynamic/json?color=00d1ff&label=Aurogene&query=%24.version&url=https%3A%2F%2Fraw.githubusercontent.com%2FNullLabTests%2Fouroboros-evolved-v1%2Fmain%2Fdocs%2Fversion.json&style=flat-square">
+    <img src="https://img.shields.io/badge/Aurogene-v7.0.0-00d1ff?style=flat-square" alt="Aurogene v7.0.0"/>
+  </picture>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License"/></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-3178c6?style=flat-square" alt="Python 3.10+"/></a>
+  <img src="https://img.shields.io/badge/Tests-205-34d399?style=flat-square" alt="205 tests passing"/>
+  <img src="https://img.shields.io/badge/Principles-12-a78bfa?style=flat-square" alt="12 Principles"/>
+  <img src="https://img.shields.io/badge/Status-Evolving-ffd700?style=flat-square" alt="Status: Evolving"/>
+  <img src="https://img.shields.io/badge/Tools-42-f0883e?style=flat-square" alt="42 Tools"/>
+  <img src="https://img.shields.io/badge/Architecture-Monorepo-8b949e?style=flat-square" alt="Monorepo"/>
+</p>
+
+<p align="center">
+  <img src="docs/principles.svg" alt="Constitutional Principles Tech Tree" width="100%"/>
+</p>
+
+<p align="center">
+  <img src="docs/consciousness_flow.svg" alt="Consciousness Cycle" width="100%"/>
 </p>
 
 **Version:** 7.0.0 | **Codename:** Aurogene (dawn of self-creation) | **Constitution:** v4.0 (12 principles)
