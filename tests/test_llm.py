@@ -4,15 +4,12 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from ouroboros.llm import (
     LLMClient,
     add_usage,
     normalize_reasoning_effort,
     reasoning_rank,
 )
-
 
 # ---------------------------------------------------------------------------
 # normalize_reasoning_effort

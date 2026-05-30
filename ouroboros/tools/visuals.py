@@ -223,7 +223,7 @@ def generate_system_portrait() -> str:
   <g transform="translate(40, 215)">{goals_rows}</g>
   <g transform="translate(40, 295)">
     <text x="0" y="0" font-family="monospace" font-size="9" fill="{cc(green)}" font-weight="600" letter-spacing="2">CREATED TOOLS</text>
-    <text x="160" y="0" font-family="monospace" font-size="7" fill="{cc(dim)}">{n_created_str} dynamically generated</text>
+    <text x="160" y="0" font-family="monospace" font-size="7" fill="{cc(dim)}">{n_created} dynamically generated</text>
     {ct_rows}
   </g>
   <g transform="translate(40, 370)">
@@ -343,7 +343,7 @@ def _health_html() -> str:
         for t in created_tools[:18]
     )
 
-    completed_pct = round(100 * completed_goals_count / max(total_goals, 1)) if total_goals else 0
+    completed_pct = round(100 * n_completed / max(total_goals, 1)) if total_goals else 0
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -460,7 +460,7 @@ header .sub{{color:#484f58;font-size:12px}}
   <div class="panel">
     <h2 class="green">\u2699 Created Tools</h2>
     <div class="ct-grid">{ct_grid}</div>
-    {f'<div style="font-size:9px;color:#484f58;margin-top:8px">+{n_created - 18} more\u2026</div>' if n_created > 18 else ''}
+    {f'<div style="font-size:9px;color:#484f58;margin-top:8px">+{n_created - 18} more…</div>' if n_created > 18 else ''}
   </div>
   <div class="panel">
     <h2 class="purple">\u219f Evolution</h2>
