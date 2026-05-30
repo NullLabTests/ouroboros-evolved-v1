@@ -379,8 +379,8 @@ def test_created_tools_inject_via_public_api(mock_ctx):
 
 
 def test_group_evolution_short_name_mapping():
-    from ouroboros.tools.registry import ToolContext
     import ouroboros.tools.group_evolution as tg
+    from ouroboros.tools.registry import ToolContext
     original = tg.group_evolution_session
 
     captured = None
