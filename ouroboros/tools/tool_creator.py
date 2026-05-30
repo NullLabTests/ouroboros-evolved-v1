@@ -13,10 +13,8 @@ from __future__ import annotations
 import ast
 import json
 import logging
-import os
 import pathlib
 import textwrap
-import traceback
 from typing import Any, Dict, List, Optional
 
 from ouroboros.tools.registry import ToolContext, ToolEntry, ToolRegistry
@@ -132,9 +130,13 @@ def _create_tool(ctx: ToolContext, name: str, source: str, description: str = ""
     """
     if not name or not name.isidentifier():
         return "Error: name must be a valid Python identifier"
+    if len(name) > 80:
+        return "Error: name too long (max 80 chars)"
 
     if not source or len(source) < 10:
         return "Error: source must be at least 10 characters"
+    if len(source) > 50000:
+        return "Error: source too long (max 50000 chars)"
 
     try:
         params = json.loads(parameters) if parameters else {"type": "object", "properties": {}, "required": []}
@@ -183,8 +185,8 @@ def _inject_created_tools(registry: ToolRegistry) -> None:
 
     Called at agent startup to restore previously created tools.
     """
-    for name, entry in _CUSTOM_TOOLS.items():
-        registry._entries[name] = entry
+    for entry in _CUSTOM_TOOLS.values():
+        registry.register(entry)
 
 
 def get_tools() -> List[ToolEntry]:

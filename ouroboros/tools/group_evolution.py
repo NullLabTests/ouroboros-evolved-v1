@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import json
 import logging
-from typing import Any, List
+from typing import List
 
+from ouroboros.group_evolution import AGENT_ARCHETYPES, group_evolution_session
 from ouroboros.tools.registry import ToolContext, ToolEntry
-from ouroboros.group_evolution import group_evolution_session, AGENT_ARCHETYPES
 
 log = logging.getLogger(__name__)
 
@@ -21,15 +20,19 @@ def _run_group_evolution(ctx: ToolContext, topic: str, archetypes: str = "") -> 
         archetypes: Comma-separated archetypes (minimalist,architect,explorer,philosopher,guardian).
                    Default: all five
     """
-    available = list(AGENT_ARCHETYPES.keys())
+    available_keys = list(AGENT_ARCHETYPES.keys())
+    short_to_key = {k.replace("the_", ""): k for k in available_keys}
+    short_to_key.update({k: k for k in available_keys})
     archetype_list: list[str] = []
     if archetypes:
         for a in archetypes.split(","):
             a = a.strip().lower()
-            if a in available:
+            if a in short_to_key:
+                archetype_list.append(short_to_key[a])
+            elif a.startswith("the_") and a in available_keys:
                 archetype_list.append(a)
     if not archetype_list:
-        archetype_list = available
+        archetype_list = list(available_keys)
 
     report, cost = group_evolution_session(
         topic=topic,

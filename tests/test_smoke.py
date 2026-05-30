@@ -14,7 +14,6 @@ import ast
 import os
 import pathlib
 import re
-import sys
 import tempfile
 
 import pytest
@@ -335,7 +334,7 @@ def test_checkpoint_not_fired_before_round_5():
 
 def test_no_hardcoded_replies():
     """Principle 3 (LLM-first): no hardcoded reply strings in code.
-    
+
     Checks for suspicious patterns like:
     - reply = "Fixed string"
     - return "Sorry, I can't..."
@@ -358,7 +357,7 @@ def test_no_hardcoded_replies():
                     if "{" in line or "f'" in line or 'f"' in line:
                         continue
                     violations.append(f"{path.name}:{i}: {line.strip()}")
-    assert len(violations) < 5, f"Possible hardcoded replies:\n" + "\n".join(violations)
+    assert len(violations) < 5, "Possible hardcoded replies:\n" + "\n".join(violations)
 
 
 def test_version_file_exists():
@@ -407,7 +406,7 @@ def test_no_env_dumping():
                     continue
                 if dangerous.search(line):
                     violations.append(f"{path.name}:{i}: {line.strip()[:80]}")
-    assert len(violations) == 0, f"Dangerous env dumping:\n" + "\n".join(violations)
+    assert len(violations) == 0, "Dangerous env dumping:\n" + "\n".join(violations)
 
 
 def test_no_oversized_modules():
@@ -428,7 +427,7 @@ def test_no_oversized_modules():
 
 def test_no_bare_except_pass():
     """No bare `except: pass` (not even except Exception: pass with just pass).
-    
+
     v4.9.0 hardened exceptions — but checks the STRICTEST form:
     bare except (no Exception class) followed by pass.
     """
@@ -450,7 +449,7 @@ def test_no_bare_except_pass():
                         if next_line and next_line == "pass":
                             violations.append(f"{path.name}:{i}: bare except: pass")
                             break
-    assert len(violations) == 0, f"Bare except:pass found:\n" + "\n".join(violations)
+    assert len(violations) == 0, "Bare except:pass found:\n" + "\n".join(violations)
 
 
 # ── AST-based function size check ───────────────────────────────
@@ -503,6 +502,7 @@ class TestPrePushGate:
     def test_run_pre_push_tests_disabled(self):
         """When OUROBOROS_PRE_PUSH_TESTS=0, should return None (skip)."""
         import os
+
         from ouroboros.tools.git import _run_pre_push_tests
         old = os.environ.get("OUROBOROS_PRE_PUSH_TESTS")
         try:
@@ -518,8 +518,9 @@ class TestPrePushGate:
 
     def test_run_pre_push_tests_no_tests_dir(self):
         """When tests/ dir doesn't exist, should return None."""
-        from ouroboros.tools.git import _run_pre_push_tests
         import os
+
+        from ouroboros.tools.git import _run_pre_push_tests
         old = os.environ.get("OUROBOROS_PRE_PUSH_TESTS")
         try:
             os.environ["OUROBOROS_PRE_PUSH_TESTS"] = "1"

@@ -10,13 +10,11 @@ Philosophy: P0 (Agency — better decisions), P6 (Becoming — cognitive depth).
 
 from __future__ import annotations
 
-import json
 import logging
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from ouroboros.llm import LLMClient, DEFAULT_LIGHT_MODEL
-from ouroboros.utils import utc_now_iso
+from ouroboros.llm import DEFAULT_LIGHT_MODEL, LLMClient
 
 log = logging.getLogger(__name__)
 

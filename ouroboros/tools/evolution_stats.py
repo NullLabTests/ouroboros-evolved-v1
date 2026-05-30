@@ -318,7 +318,7 @@ def _patch_app_html(webapp_dir: Path) -> str:
     # 1. Insert nav item before settings nav item
     settings_nav = '<div class="nav-item" data-tab="settings">'
     if settings_nav not in html:
-        return f"nav anchor not found"
+        return "nav anchor not found"
     html = html.replace(settings_nav, _EVOLUTION_NAV + "\n      " + settings_nav)
 
     # 2. Insert tab content before settings tab content
@@ -338,6 +338,7 @@ def _patch_app_html(webapp_dir: Path) -> str:
 def _push_to_github(data: dict[str, Any]) -> str:
     """Push evolution.json to the repo's docs/ folder via GitHub API."""
     import base64
+
     import requests
 
     token = os.environ.get("GITHUB_TOKEN", "").strip()

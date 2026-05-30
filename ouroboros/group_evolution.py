@@ -12,14 +12,11 @@ evolution acceleration), P6 (Becoming — growth through diversity).
 
 from __future__ import annotations
 
-import json
 import logging
 import os
-import pathlib
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from ouroboros.llm import LLMClient, DEFAULT_LIGHT_MODEL
-from ouroboros.utils import utc_now_iso, read_text
+from ouroboros.llm import DEFAULT_LIGHT_MODEL, LLMClient
 
 log = logging.getLogger(__name__)
 
@@ -73,7 +70,7 @@ def group_evolution_session(
     Returns:
         (session_report, total_cost)
     """
-    active = archetypes or list(AGENT_ARCHETYPES.keys())
+    active = archetypes if archetypes is not None else list(AGENT_ARCHETYPES.keys())
     for a in active:
         if a not in AGENT_ARCHETYPES:
             raise ValueError(f"Unknown archetype: {a}. Available: {list(AGENT_ARCHETYPES.keys())}")
@@ -98,6 +95,9 @@ def group_evolution_session(
         if content:
             proposals[archetype] = content
 
+    if not proposals:
+        return f"# Group Evolution Session\n\n**Topic:** {topic}\n\nNo proposals were generated.", round(total_cost, 6)
+
     synthesis, syn_cost = _synthesize_group(topic, proposals, active_model, llm)
     total_cost += syn_cost
 
@@ -106,7 +106,7 @@ def group_evolution_session(
 
 
 def _build_archetype_prompt(topic: str, archetype: str) -> str:
-    persona = AGENT_ARCHETYPES.get(archetype, f"You are an Ouroboros variant.")
+    persona = AGENT_ARCHETYPES.get(archetype, "You are an Ouroboros variant.")
     return (
         f"{persona}\n\n"
         f"Evolution topic: {topic}\n\n"
@@ -135,14 +135,20 @@ def _synthesize_group(topic: str, proposals: Dict[str, str], model: str, llm: LL
         "4. What should NOT be done (proposals to reject)?\n\n"
         "Be decisive. This synthesis will guide actual evolution."
     )
-    msg, usage = llm.chat(
-        messages=[{"role": "user", "content": prompt}],
-        model=model,
-        reasoning_effort="high",
-        max_tokens=2048,
-    )
-    cost = float(usage.get("cost") or 0)
-    return (msg.get("content") or "").strip(), round(cost, 6)
+    try:
+        msg, usage = llm.chat(
+            messages=[{"role": "user", "content": prompt}],
+            model=model,
+            reasoning_effort="high",
+            max_tokens=2048,
+        )
+        cost = float(usage.get("cost") or 0)
+        synthesis = (msg.get("content") or "").strip() or "(synthesis not available)"
+    except Exception as e:
+        log.warning("Synthesis failed: %s", e)
+        synthesis = f"(synthesis failed: {e})"
+        cost = 0.0
+    return synthesis, round(cost, 6)
 
 
 def _format_group_report(

@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 import json
-import os
 import pathlib
-import tempfile
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from ouroboros.tools.registry import ToolContext, ToolRegistry
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -41,7 +38,7 @@ def mock_ctx(temp_drive: pathlib.Path) -> ToolContext:
 # ---------------------------------------------------------------------------
 
 def test_create_tool_register_and_execute(mock_ctx):
-    from ouroboros.tools.tool_creator import _create_tool, _list_created_tools, _CUSTOM_TOOLS
+    from ouroboros.tools.tool_creator import _CUSTOM_TOOLS, _create_tool, _list_created_tools
     _CUSTOM_TOOLS.clear()
 
     source = '''def hello_world(ctx, name: str = "World") -> str:
@@ -57,7 +54,7 @@ def test_create_tool_register_and_execute(mock_ctx):
 
 
 def test_create_tool_invalid_syntax(mock_ctx):
-    from ouroboros.tools.tool_creator import _create_tool, _CUSTOM_TOOLS
+    from ouroboros.tools.tool_creator import _CUSTOM_TOOLS, _create_tool
     _CUSTOM_TOOLS.clear()
 
     result = _create_tool(mock_ctx, name="bad_tool", source="this is not python {{{")
@@ -65,7 +62,7 @@ def test_create_tool_invalid_syntax(mock_ctx):
 
 
 def test_create_tool_persists_to_disk(mock_ctx):
-    from ouroboros.tools.tool_creator import _create_tool, _CUSTOM_TOOLS, _init_storage
+    from ouroboros.tools.tool_creator import _CUSTOM_TOOLS, _create_tool, _init_storage
     _CUSTOM_TOOLS.clear()
 
     source = '''def my_persist_tool(ctx, x: int = 0) -> str:
@@ -81,7 +78,7 @@ def test_create_tool_persists_to_disk(mock_ctx):
 
 
 def test_delete_created_tool(mock_ctx):
-    from ouroboros.tools.tool_creator import _create_tool, _delete_created_tool, _list_created_tools, _CUSTOM_TOOLS
+    from ouroboros.tools.tool_creator import _CUSTOM_TOOLS, _create_tool, _delete_created_tool, _list_created_tools
     _CUSTOM_TOOLS.clear()
 
     source = '''def tmp_tool(ctx) -> str:\n    return "tmp"\n'''

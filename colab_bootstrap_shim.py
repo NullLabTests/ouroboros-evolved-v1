@@ -10,8 +10,10 @@ import subprocess
 import sys
 from typing import Optional
 
-from google.colab import userdata  # type: ignore
-from google.colab import drive  # type: ignore
+from google.colab import (
+    drive,  # type: ignore
+    userdata,  # type: ignore
+)
 
 
 def get_secret(name: str, required: bool = False) -> Optional[str]:

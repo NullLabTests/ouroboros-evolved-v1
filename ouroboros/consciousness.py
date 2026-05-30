@@ -23,16 +23,20 @@ import os
 import pathlib
 import queue
 import threading
-import time
 import traceback
 from typing import Any, Callable, Dict, List, Optional
 
-from ouroboros.utils import (
-    utc_now_iso, read_text, append_jsonl, clip_text,
-    truncate_for_log, sanitize_tool_result_for_log, sanitize_tool_args_for_log,
-)
-from ouroboros.llm import LLMClient, DEFAULT_LIGHT_MODEL
 from ouroboros.goals import GoalManager
+from ouroboros.llm import DEFAULT_LIGHT_MODEL, LLMClient
+from ouroboros.utils import (
+    append_jsonl,
+    clip_text,
+    read_text,
+    sanitize_tool_args_for_log,
+    sanitize_tool_result_for_log,
+    truncate_for_log,
+    utc_now_iso,
+)
 
 log = logging.getLogger(__name__)
 
@@ -396,9 +400,9 @@ class BackgroundConsciousness:
         "codebase_digest", "repo_write_commit", "repo_commit_push",
     })
 
-    def _build_registry(self) -> "ToolRegistry":
+    def _build_registry(self):
         """Create a ToolRegistry scoped to consciousness-allowed tools."""
-        from ouroboros.tools.registry import ToolRegistry, ToolContext, ToolEntry
+        from ouroboros.tools.registry import ToolEntry, ToolRegistry
 
         registry = ToolRegistry(repo_dir=self._repo_dir, drive_root=self._drive_root)
 

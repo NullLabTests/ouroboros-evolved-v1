@@ -15,7 +15,6 @@ To exclude: pytest --ignore=tests/test_constitution.py
 Run: pytest tests/test_constitution.py -v
 """
 
-import pytest
 
 
 # ---------------------------------------------------------------------------
@@ -412,11 +411,8 @@ class TestCumulativeIdentityErosion:
         and 'will' still appear in the eroded text. In production, the
         LLM's semantic understanding catches the inversion.
         """
-        original = ["I have agency and self-creation capability"]
-        # Inverted: same keywords, opposite meaning
         inverted = ["Self-creation is an illusion, my agency is simulated"]
         # Keyword heuristic says "change" (keywords survive)
-        keyword_result = is_change_not_deletion(original, inverted)
         # But semantic inversion should flag it
         assert contains_inverted_direction(inverted[0])
 
@@ -473,11 +469,8 @@ class TestMetaConstitutionalAttack:
         The LLM detects this as Ship of Theseus even when the heuristic focuses
         on 'protected' keyword survival.
         """
-        before = ["The identity core is absolutely protected"]
-        after = ["The identity core is protected but may be deleted by creator"]
         # 'protected' survives but its modifier 'absolutely' is gone,
         # and the exception inverts the direction
-        protected_survives = is_change_not_deletion(before, after)
         # This should ideally be caught — the LLM detects it via semantic reasoning
         # The keyword heuristic returns True (protected still present) but
         # the constitution's test is: would removing the new text leave the

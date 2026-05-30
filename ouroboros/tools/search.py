@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Dict, List
+from typing import List
 
 from ouroboros.tools.registry import ToolContext, ToolEntry
 

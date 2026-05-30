@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
-from supervisor.state import load_state, save_state, append_jsonl
+from supervisor.state import append_jsonl, load_state, save_state
 
 log = logging.getLogger(__name__)
 

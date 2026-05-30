@@ -1,8 +1,9 @@
 """Tool discovery meta-tools — lets the agent see and enable non-core tools."""
 
 from __future__ import annotations
+
 import logging
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
 from ouroboros.tools.registry import ToolContext, ToolEntry
 

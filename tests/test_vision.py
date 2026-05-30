@@ -1,10 +1,10 @@
 """Smoke tests for VLM (Vision Language Model) support."""
 
-import sys
 import os
-import unittest
-from unittest.mock import MagicMock, patch, PropertyMock
 import pathlib
+import sys
+import unittest
+from unittest.mock import MagicMock, patch
 
 # Add project root to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -112,7 +112,7 @@ class TestAnalyzeScreenshotTool(unittest.TestCase):
     """Test the analyze_screenshot tool."""
 
     def _make_ctx(self, with_screenshot=True):
-        from ouroboros.tools.registry import ToolContext, BrowserState
+        from ouroboros.tools.registry import BrowserState, ToolContext
         ctx = MagicMock(spec=ToolContext)
         ctx.browser_state = BrowserState()
         ctx.event_queue = None
@@ -159,7 +159,7 @@ class TestVlmQueryTool(unittest.TestCase):
     """Test the vlm_query tool."""
 
     def _make_ctx(self):
-        from ouroboros.tools.registry import ToolContext, BrowserState
+        from ouroboros.tools.registry import BrowserState, ToolContext
         ctx = MagicMock(spec=ToolContext)
         ctx.browser_state = BrowserState()
         ctx.event_queue = None
@@ -195,7 +195,6 @@ class TestVlmQueryTool(unittest.TestCase):
 
     def test_vlm_query_tool_registered(self):
         """vlm_query and analyze_screenshot tools are properly registered."""
-        import pathlib
         from ouroboros.tools.registry import ToolRegistry
 
         registry = ToolRegistry(

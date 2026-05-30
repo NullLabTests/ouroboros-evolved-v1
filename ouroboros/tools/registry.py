@@ -7,7 +7,6 @@ ToolRegistry collects all tools, provides schemas() and execute().
 
 from __future__ import annotations
 
-import json
 import pathlib
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
@@ -115,6 +114,7 @@ class ToolRegistry:
         """Auto-discover tool modules in ouroboros/tools/ that export get_tools()."""
         import importlib
         import pkgutil
+
         import ouroboros.tools as tools_pkg
         for _importer, modname, _ispkg in pkgutil.iter_modules(tools_pkg.__path__):
             if modname.startswith("_") or modname == "registry":

@@ -13,7 +13,6 @@ from typing import Any, Dict, List, Tuple
 
 from ouroboros.utils import clip_text, estimate_tokens
 
-
 _SKIP_EXT = {
     ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".ico", ".pdf", ".zip",
     ".tar", ".gz", ".bz2", ".xz", ".7z", ".rar", ".mp3", ".mp4", ".mov",

@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, List
+from typing import List
 
+from ouroboros.debate import STANCE_ROLES, debate
 from ouroboros.tools.registry import ToolContext, ToolEntry
-from ouroboros.debate import debate, STANCE_ROLES
 
 log = logging.getLogger(__name__)
 

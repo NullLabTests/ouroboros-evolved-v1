@@ -9,16 +9,18 @@ from __future__ import annotations
 import datetime
 import json
 import logging
-import os
 import pathlib
 import shutil
 import subprocess
 import sys
 import uuid
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 from supervisor.state import (
-    load_state, save_state, append_jsonl, atomic_write_text,
+    append_jsonl,
+    atomic_write_text,
+    load_state,
+    save_state,
 )
 
 log = logging.getLogger(__name__)
@@ -427,4 +429,4 @@ def safe_restart(
         return True, f"OK: fell back to {BRANCH_STABLE}"
 
     # Both branches failed
-    return False, f"Both branches failed import (dev and stable)"
+    return False, "Both branches failed import (dev and stable)"

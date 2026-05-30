@@ -4,9 +4,17 @@
 # Thin orchestrator: secrets, bootstrap, main loop.
 # Heavy logic lives in supervisor/ package.
 
+import datetime
 import logging
-import os, sys, json, time, uuid, pathlib, subprocess, datetime, threading, queue as _queue_mod
-from typing import Any, Dict, List, Optional, Set, Tuple
+import os
+import pathlib
+import queue as _queue_mod
+import subprocess
+import sys
+import threading
+import time
+import uuid
+from typing import Any, Optional, Set
 
 log = logging.getLogger(__name__)
 
@@ -45,13 +53,16 @@ def ensure_claude_code_cli() -> bool:
 # ----------------------------
 from ouroboros.apply_patch import install as install_apply_patch
 from ouroboros.llm import DEFAULT_LIGHT_MODEL
+
 install_apply_patch()
 
 # ----------------------------
 # 1) Secrets + runtime config
 # ----------------------------
-from google.colab import userdata  # type: ignore
-from google.colab import drive  # type: ignore
+from google.colab import (
+    drive,  # type: ignore
+    userdata,  # type: ignore
+)
 
 _LEGACY_CFG_WARNED: Set[str] = set()
 
@@ -192,16 +203,30 @@ REMOTE_URL = f"https://{GITHUB_TOKEN}:x-oauth-basic@github.com/{GITHUB_USER}/{GI
 # 4) Initialize supervisor modules
 # ----------------------------
 from supervisor.state import (
-    init as state_init, load_state, save_state, append_jsonl,
-    update_budget_from_usage, status_text, rotate_chat_log_if_needed,
+    append_jsonl,
     init_state,
+    load_state,
+    rotate_chat_log_if_needed,
+    save_state,
+    status_text,
+    update_budget_from_usage,
 )
+from supervisor.state import (
+    init as state_init,
+)
+
 state_init(DRIVE_ROOT, TOTAL_BUDGET_LIMIT)
 init_state()
 
 from supervisor.telegram import (
-    init as telegram_init, TelegramClient, send_with_budget, log_chat,
+    TelegramClient,
+    log_chat,
+    send_with_budget,
 )
+from supervisor.telegram import (
+    init as telegram_init,
+)
+
 TG = TelegramClient(str(TELEGRAM_BOT_TOKEN))
 telegram_init(
     drive_root=DRIVE_ROOT,
@@ -211,25 +236,45 @@ telegram_init(
 )
 
 from supervisor.git_ops import (
-    init as git_ops_init, ensure_repo_present, checkout_and_reset,
-    sync_runtime_dependencies, import_test, safe_restart,
+    ensure_repo_present,
+    safe_restart,
 )
+from supervisor.git_ops import (
+    init as git_ops_init,
+)
+
 git_ops_init(
     repo_dir=REPO_DIR, drive_root=DRIVE_ROOT, remote_url=REMOTE_URL,
     branch_dev=BRANCH_DEV, branch_stable=BRANCH_STABLE,
 )
 
 from supervisor.queue import (
-    enqueue_task, enforce_task_timeouts, enqueue_evolution_task_if_needed,
-    persist_queue_snapshot, restore_pending_from_snapshot,
-    cancel_task_by_id, queue_review_task, sort_pending,
+    cancel_task_by_id,
+    enforce_task_timeouts,
+    enqueue_evolution_task_if_needed,
+    enqueue_task,
+    persist_queue_snapshot,
+    queue_review_task,
+    restore_pending_from_snapshot,
+    sort_pending,
+)
+from supervisor.workers import (
+    PENDING,
+    RUNNING,
+    WORKERS,
+    _get_chat_agent,
+    assign_tasks,
+    auto_resume_after_restart,
+    ensure_workers_healthy,
+    get_event_q,
+    handle_chat_direct,
+    kill_workers,
+    spawn_workers,
+)
+from supervisor.workers import (
+    init as workers_init,
 )
 
-from supervisor.workers import (
-    init as workers_init, get_event_q, WORKERS, PENDING, RUNNING,
-    spawn_workers, kill_workers, assign_tasks, ensure_workers_healthy,
-    handle_chat_direct, _get_chat_agent, auto_resume_after_restart,
-)
 workers_init(
     repo_dir=REPO_DIR, drive_root=DRIVE_ROOT, max_workers=MAX_WORKERS,
     soft_timeout=SOFT_TIMEOUT_SEC, hard_timeout=HARD_TIMEOUT_SEC,
@@ -328,6 +373,7 @@ _watchdog_thread.start()
 # ----------------------------
 from ouroboros.consciousness import BackgroundConsciousness
 
+
 def _get_owner_chat_id() -> Optional[int]:
     try:
         st = load_state()
@@ -352,6 +398,7 @@ def reset_chat_agent():
 # 7) Main loop
 # ----------------------------
 import types
+
 _event_ctx = types.SimpleNamespace(
     DRIVE_ROOT=DRIVE_ROOT,
     REPO_DIR=REPO_DIR,

@@ -268,6 +268,7 @@ _SECRET_KEYS = frozenset([
 
 # Patterns that indicate leaked secrets in tool output
 import re as _re
+
 _SECRET_PATTERNS = _re.compile(
     r'ghp_[A-Za-z0-9]{30,}'       # GitHub personal access token
     r'|sk-ant-[A-Za-z0-9\-]{30,}' # Anthropic API key

@@ -19,21 +19,24 @@ import traceback
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
-log = logging.getLogger(__name__)
-
-from ouroboros.utils import (
-    utc_now_iso, read_text, append_jsonl,
-    safe_relpath, truncate_for_log,
-    get_git_info, sanitize_task_for_event,
-)
-from ouroboros.llm import LLMClient, add_usage
+from ouroboros.context import build_llm_messages
+from ouroboros.llm import LLMClient
+from ouroboros.loop import run_llm_loop
+from ouroboros.memory import Memory
 from ouroboros.tools import ToolRegistry
 from ouroboros.tools.registry import ToolContext
 from ouroboros.tools.tool_creator import _inject_created_tools
-from ouroboros.memory import Memory
-from ouroboros.context import build_llm_messages
-from ouroboros.loop import run_llm_loop
+from ouroboros.utils import (
+    append_jsonl,
+    get_git_info,
+    read_text,
+    safe_relpath,
+    sanitize_task_for_event,
+    truncate_for_log,
+    utc_now_iso,
+)
 
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Module-level guard for one-time worker boot logging
@@ -149,7 +152,7 @@ class OuroborosAgent:
                 cwd=str(self.env.repo_dir),
                 capture_output=True, text=True, timeout=10, check=True
             )
-            dirty_files = [l.strip() for l in result.stdout.strip().split('\n') if l.strip()]
+            dirty_files = [ln.strip() for ln in result.stdout.strip().split('\n') if ln.strip()]
             if dirty_files:
                 # Auto-rescue: commit and push
                 auto_committed = False
@@ -196,8 +199,8 @@ class OuroborosAgent:
 
     def _check_version_sync(self) -> Tuple[dict, int]:
         """Check VERSION file sync with git tags and pyproject.toml."""
-        import subprocess
         import re
+        import subprocess
         try:
             version_file = read_text(self.env.repo_path("VERSION")).strip()
             issue_count = 0

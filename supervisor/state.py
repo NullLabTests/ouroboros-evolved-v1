@@ -13,7 +13,7 @@ import os
 import pathlib
 import time
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 log = logging.getLogger(__name__)
 
@@ -117,7 +117,6 @@ def release_file_lock(lock_path: pathlib.Path, lock_fd: Optional[int]) -> None:
 
 # Re-export append_jsonl from ouroboros.utils (single source of truth)
 from ouroboros.utils import append_jsonl  # noqa: F401
-
 
 # ---------------------------------------------------------------------------
 # State schema

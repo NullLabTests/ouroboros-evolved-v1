@@ -7,10 +7,10 @@ import os
 import pathlib
 import subprocess
 import time
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from ouroboros.tools.registry import ToolContext, ToolEntry
-from ouroboros.utils import utc_now_iso, write_text, safe_relpath, run_cmd
+from ouroboros.utils import run_cmd, safe_relpath, utc_now_iso, write_text
 
 log = logging.getLogger(__name__)
 
@@ -108,7 +108,7 @@ def _git_push_with_tests(ctx: ToolContext) -> Optional[str]:
     try:
         run_cmd(["git", "pull", "--rebase", "origin", ctx.branch_dev], cwd=ctx.repo_dir)
     except Exception:
-        log.debug(f"Failed to pull --rebase before push", exc_info=True)
+        log.debug("Failed to pull --rebase before push", exc_info=True)
         pass
 
     try:

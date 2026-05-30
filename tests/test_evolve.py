@@ -9,26 +9,22 @@ Covers:
 - Version sync validation
 """
 
-import os
 import pathlib
 import tempfile
-from unittest.mock import patch
-
-import pytest
 
 from ouroboros.tools.evolve_cycle import (
-    classify_change,
-    determine_version_bump,
-    validate_not_identity_core_deletion,
-    validate_constitution,
-    read_version,
-    write_version,
-    validate_version_sync,
-    sync_versions,
     CHANGE_BREAKING,
+    CHANGE_DOC,
     CHANGE_FEATURE,
     CHANGE_FIX,
-    CHANGE_DOC,
+    classify_change,
+    determine_version_bump,
+    read_version,
+    sync_versions,
+    validate_constitution,
+    validate_not_identity_core_deletion,
+    validate_version_sync,
+    write_version,
 )
 
 

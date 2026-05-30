@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from typing import List
 
-from ouroboros.tools.registry import ToolEntry, ToolContext
+from ouroboros.tools.registry import ToolContext, ToolEntry
 
 log = logging.getLogger(__name__)
 

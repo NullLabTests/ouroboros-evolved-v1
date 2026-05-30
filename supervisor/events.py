@@ -26,7 +26,7 @@ def _handle_llm_usage(evt: Dict[str, Any], ctx: Any) -> None:
     ctx.update_budget_from_usage(usage)
 
     # Log to events.jsonl for audit trail
-    from ouroboros.utils import utc_now_iso, append_jsonl
+    from ouroboros.utils import append_jsonl, utc_now_iso
     try:
         append_jsonl(ctx.DRIVE_ROOT / "logs" / "events.jsonl", {
             "ts": evt.get("ts", utc_now_iso()),
@@ -260,7 +260,7 @@ def _find_duplicate_task(desc: str, pending: list, running: dict) -> Optional[st
     )
 
     try:
-        from ouroboros.llm import LLMClient, DEFAULT_LIGHT_MODEL
+        from ouroboros.llm import DEFAULT_LIGHT_MODEL, LLMClient
         light_model = os.environ.get("OUROBOROS_MODEL_LIGHT") or DEFAULT_LIGHT_MODEL
         client = LLMClient()
         resp_msg, usage = client.chat(
@@ -293,7 +293,7 @@ def _handle_schedule_task(evt: Dict[str, Any], ctx: Any) -> None:
     if depth > 3:
         log.warning("Rejected task due to depth limit: depth=%d, desc=%s", depth, desc[:100])
         if owner_chat_id:
-            ctx.send_with_budget(int(owner_chat_id), f"⚠️ Task rejected: subtask depth limit (3) exceeded")
+            ctx.send_with_budget(int(owner_chat_id), "⚠️ Task rejected: subtask depth limit (3) exceeded")
         return
 
     if owner_chat_id and desc:

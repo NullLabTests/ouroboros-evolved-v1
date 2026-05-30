@@ -6,7 +6,7 @@ import json
 import logging
 import os
 import subprocess
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from ouroboros.tools.registry import ToolContext, ToolEntry
 
@@ -89,7 +89,7 @@ def _list_issues(ctx: ToolContext, state: str = "open", labels: str = "", limit:
 
     lines = [f"**{len(issues)} {state} issue(s):**\n"]
     for issue in issues:
-        labels_str = ", ".join(l.get("name", "") for l in issue.get("labels", []))
+        labels_str = ", ".join(lb.get("name", "") for lb in issue.get("labels", []))
         author = issue.get("author", {}).get("login", "unknown")
         lines.append(
             f"- **#{issue['number']}** {issue['title']}"
@@ -123,7 +123,7 @@ def _get_issue(ctx: ToolContext, number: int) -> str:
     except json.JSONDecodeError:
         return f"⚠️ Failed to parse issue JSON: {raw[:500]}"
 
-    labels_str = ", ".join(l.get("name", "") for l in issue.get("labels", []))
+    labels_str = ", ".join(lb.get("name", "") for lb in issue.get("labels", []))
     author = issue.get("author", {}).get("login", "unknown")
 
     lines = [

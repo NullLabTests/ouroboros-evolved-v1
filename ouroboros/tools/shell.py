@@ -12,7 +12,7 @@ import subprocess
 from typing import Any, Dict, List
 
 from ouroboros.tools.registry import ToolContext, ToolEntry
-from ouroboros.utils import utc_now_iso, run_cmd, append_jsonl, truncate_for_log
+from ouroboros.utils import append_jsonl, run_cmd, truncate_for_log, utc_now_iso
 
 log = logging.getLogger(__name__)
 

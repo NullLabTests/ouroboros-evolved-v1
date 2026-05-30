@@ -15,7 +15,7 @@ import logging
 import subprocess
 import sys
 import threading
-from typing import Any, Dict, List
+from typing import Any, List
 
 try:
     from playwright_stealth import Stealth

@@ -6,7 +6,9 @@ Queue operations moved to supervisor.queue.
 """
 
 from __future__ import annotations
+
 import logging
+
 log = logging.getLogger(__name__)
 
 import datetime
@@ -21,10 +23,8 @@ import uuid
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from supervisor.state import load_state, append_jsonl
-from supervisor import git_ops
+from supervisor.state import append_jsonl, load_state
 from supervisor.telegram import send_with_budget
-
 
 # ---------------------------------------------------------------------------
 # Module-level config (set via init())
@@ -275,9 +275,9 @@ def auto_resume_after_restart() -> None:
 # ---------------------------------------------------------------------------
 
 def worker_main(wid: int, in_q: Any, out_q: Any, repo_dir: str, drive_root: str) -> None:
+    import pathlib as _pathlib
     import sys as _sys
     import traceback as _tb
-    import pathlib as _pathlib
     _sys.path.insert(0, repo_dir)
     _drive = _pathlib.Path(drive_root)
     try:
@@ -477,7 +477,7 @@ def respawn_worker(wid: int) -> None:
 
 def assign_tasks() -> None:
     from supervisor import queue
-    from supervisor.state import budget_remaining, EVOLUTION_BUDGET_RESERVE
+    from supervisor.state import EVOLUTION_BUDGET_RESERVE, budget_remaining
     with _queue_lock:
         for w in WORKERS.values():
             if w.busy_task_id is None and PENDING:

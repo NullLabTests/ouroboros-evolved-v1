@@ -16,9 +16,13 @@ import uuid
 from typing import Any, Dict, List, Optional, Tuple
 
 from supervisor.state import (
-    load_state, save_state, append_jsonl, atomic_write_text,
-    QUEUE_SNAPSHOT_PATH, budget_pct, TOTAL_BUDGET_LIMIT,
-    budget_remaining, EVOLUTION_BUDGET_RESERVE,
+    EVOLUTION_BUDGET_RESERVE,
+    QUEUE_SNAPSHOT_PATH,
+    append_jsonl,
+    atomic_write_text,
+    budget_remaining,
+    load_state,
+    save_state,
 )
 from supervisor.telegram import send_with_budget
 
@@ -248,7 +252,7 @@ def enforce_task_timeouts() -> None:
     """Check all RUNNING tasks for timeouts and enforce them."""
     # Import here to avoid circular dependency during module load
     from supervisor import workers
-    
+
     if not RUNNING:
         return
     now = time.time()

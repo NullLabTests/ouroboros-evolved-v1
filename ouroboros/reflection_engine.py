@@ -15,11 +15,11 @@ import json
 import logging
 import os
 import pathlib
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
-from ouroboros.llm import LLMClient, DEFAULT_LIGHT_MODEL
+from ouroboros.llm import DEFAULT_LIGHT_MODEL, LLMClient
 from ouroboros.memory import Memory
-from ouroboros.utils import utc_now_iso, read_text, append_jsonl
+from ouroboros.utils import utc_now_iso
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +51,6 @@ def contrastive_reflection(
     total_cost = 0.0
 
     identity_text = mem.load_identity()
-    scratchpad_text = mem.load_scratchpad()
 
     recent_journal = _load_recent_journal(mem, depth)
     recent_tasks = _load_recent_tasks(drive_root, depth)

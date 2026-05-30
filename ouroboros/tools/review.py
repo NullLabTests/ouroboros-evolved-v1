@@ -4,15 +4,15 @@ Models are NOT hardcoded — the LLM chooses which models to use based on
 prompt guidance. Budget is tracked via llm_usage events.
 """
 
-import os
-import json
 import asyncio
+import json
 import logging
+import os
+
 import httpx
 
+from ouroboros.tools.registry import ToolContext, ToolEntry
 from ouroboros.utils import utc_now_iso
-from ouroboros.tools.registry import ToolEntry, ToolContext
-
 
 log = logging.getLogger(__name__)
 

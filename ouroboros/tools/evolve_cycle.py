@@ -18,15 +18,14 @@ __all__ = [
     "get_tools",
 ]
 
-import json
 import logging
 import os
 import pathlib
 import re
 import subprocess
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
-from ouroboros.utils import read_text, write_text, utc_now_iso, run_cmd, get_git_info
+from ouroboros.utils import get_git_info, read_text, run_cmd, utc_now_iso, write_text
 
 log = logging.getLogger(__name__)
 
@@ -185,10 +184,8 @@ def update_changelog(repo_dir: pathlib.Path, version: str, message: str,
     table_line = content.find("| **v", insert_pos)
     if table_line < 0:
         # No existing entries, append after header with new table
-        existing_table = ""
         insert_pos = header_end + 1
     else:
-        existing_table = ""
         insert_pos = table_line
 
     new_content = content[:insert_pos] + new_entry + content[insert_pos:]
@@ -337,7 +334,7 @@ def _propose_evolution(ctx, description: str = "",
     proposed_version = determine_version_bump(current_version, change_type)
 
     parts = [
-        f"## Evolution Proposal\n",
+        "## Evolution Proposal\n",
         f"**Current version:** {current_version}",
         f"**Proposed version:** {proposed_version} ({change_type} bump)",
         f"**Files changed:** {', '.join(files_changed) if files_changed else '(none)'}",
@@ -345,7 +342,7 @@ def _propose_evolution(ctx, description: str = "",
     ]
 
     if identity_warnings:
-        parts.append(f"\n### ❌ IDENTITY CORE VIOLATIONS\n" + "\n".join(f"- {w}" for w in identity_warnings))
+        parts.append("\n### ❌ IDENTITY CORE VIOLATIONS\n" + "\n".join(f"- {w}" for w in identity_warnings))
     else:
         parts.append("\n### ✅ Identity core: safe")
 

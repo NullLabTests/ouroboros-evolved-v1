@@ -21,10 +21,14 @@ import os
 import pathlib
 from typing import Any, Dict, List, Optional, Tuple
 
-from ouroboros.utils import (
-    utc_now_iso, read_text, clip_text, estimate_tokens, get_git_info,
-)
 from ouroboros.memory import Memory
+from ouroboros.utils import (
+    clip_text,
+    estimate_tokens,
+    get_git_info,
+    read_text,
+    utc_now_iso,
+)
 
 log = logging.getLogger(__name__)
 
@@ -657,7 +661,7 @@ def compact_tool_history_llm(messages: list, keep_recent: int = 6) -> list:
     )
 
     try:
-        from ouroboros.llm import LLMClient, DEFAULT_LIGHT_MODEL
+        from ouroboros.llm import DEFAULT_LIGHT_MODEL, LLMClient
         light_model = os.environ.get("OUROBOROS_MODEL_LIGHT") or DEFAULT_LIGHT_MODEL
         client = LLMClient()
         resp_msg, _usage = client.chat(

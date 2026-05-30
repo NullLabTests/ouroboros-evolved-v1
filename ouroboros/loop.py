@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import pathlib
 import queue
@@ -11,12 +12,17 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-import logging
-
-from ouroboros.llm import LLMClient, normalize_reasoning_effort, add_usage
-from ouroboros.tools.registry import ToolRegistry
 from ouroboros.context import compact_tool_history, compact_tool_history_llm
-from ouroboros.utils import utc_now_iso, append_jsonl, truncate_for_log, sanitize_tool_args_for_log, sanitize_tool_result_for_log, estimate_tokens
+from ouroboros.llm import LLMClient, add_usage, normalize_reasoning_effort
+from ouroboros.tools.registry import ToolRegistry
+from ouroboros.utils import (
+    append_jsonl,
+    estimate_tokens,
+    sanitize_tool_args_for_log,
+    sanitize_tool_result_for_log,
+    truncate_for_log,
+    utc_now_iso,
+)
 
 log = logging.getLogger(__name__)
 
@@ -759,7 +765,7 @@ def run_llm_loop(
                 emit_progress(content.strip())
                 llm_trace["assistant_notes"].append(content.strip()[:320])
 
-            error_count = _handle_tool_calls(
+            _handle_tool_calls(
                 tool_calls, tools, drive_logs, task_id, stateful_executor,
                 messages, llm_trace, emit_progress
             )
@@ -852,7 +858,6 @@ def _call_llm_with_retry(
         (None, 0.0) on failure after max_retries
     """
     msg = None
-    last_error: Optional[Exception] = None
 
     for attempt in range(max_retries):
         try:
@@ -920,7 +925,6 @@ def _call_llm_with_retry(
             return msg, cost
 
         except Exception as e:
-            last_error = e
             append_jsonl(drive_logs / "events.jsonl", {
                 "ts": utc_now_iso(), "type": "llm_api_error",
                 "task_id": task_id,

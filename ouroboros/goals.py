@@ -12,11 +12,10 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import pathlib
 import uuid
-from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, List, Optional
+from dataclasses import asdict, dataclass, field
+from typing import Dict, List, Optional
 
 from ouroboros.utils import utc_now_iso
 

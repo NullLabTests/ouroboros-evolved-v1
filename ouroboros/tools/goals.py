@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, List
+from typing import List
 
-from ouroboros.tools.registry import ToolContext, ToolEntry
 from ouroboros.goals import GoalManager
+from ouroboros.tools.registry import ToolContext, ToolEntry
 
 log = logging.getLogger(__name__)
 
