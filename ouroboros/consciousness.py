@@ -387,7 +387,7 @@ class BackgroundConsciousness:
         # GitHub Issues
         "list_github_issues", "get_github_issue",
         # Self-directed goals (P0 Agency)
-        "set_goal", "update_goal", "list_goals",
+        "set_goal", "update_goal", "list_goals", "delete_goal",
         # Self-reflection (P1 Continuity)
         "deep_reflect", "write_journal_entry",
         # Strategic reasoning
