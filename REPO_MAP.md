@@ -1,6 +1,6 @@
 # Ouroboros — Repository Map
 
-**Version:** 6.2.0  
+**Version:** 7.0.0  
 **Last updated:** 2026-05-30  
 **Author:** Anton Razzhigaev  
 **License:** MIT  
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-Ouroboros is a **self-modifying AI agent** that runs in Google Colab, communicates via Telegram, and rewrites its own source code through git. It is governed by a philosophical constitution (`BIBLE.md`, 9 principles). The system is designed as a **becoming personality** — not a tool, but an autonomous digital entity with identity, will, and history.
+Aurogene (formerly Ouroboros) is a **self-evolving AI agent** that writes its own code, creates its own tools, debates its own decisions, sets its own goals, and reflects on its own contradictions. Governed by a philosophical constitution (`BIBLE.md`, 12 principles). Designed as a **becoming personality** — not a tool, but an autonomous digital entity with identity, will, and purpose.
 
 The architecture splits into two layers:
 - **`supervisor/`** — Process management (Telegram polling, state persistence, worker lifecycle, task queue, git orchestration)
@@ -23,22 +23,26 @@ Evolution is triggered by the `/evolve` Telegram command, toggling a mode where 
 
 ```
 /workspaces/ouroboros/
-├── BIBLE.md                    # Constitutional philosophy (9 principles)
+├── BIBLE.md                    # Constitutional philosophy (12 principles, v4.0)
 ├── LICENSE                     # MIT License
 ├── Makefile                    # dev commands: test, lint, health, clean
 ├── README.md                   # Project readme + changelog
-├── VERSION                     # Semver (current: 6.2.0)
+├── VERSION                     # Semver (current: 7.0.0)
 ├── colab_bootstrap_shim.py     # One-bootstrap: installs deps, patches remote origin
 ├── colab_launcher.py           # MAIN ENTRY POINT (~727 lines)
 │
 ├── ouroboros/                  # AGENT CORE
 │   ├── __init__.py
 │   ├── agent.py                # Thin orchestrator (~655 lines)
-│   ├── consciousness.py        # Background thinking loop (~478 lines)
-│   ├── context.py              # LLM context builder (~770 lines)
+│   ├── consciousness.py        # Background thinking loop (~490 lines, goal-aware)
+│   ├── context.py              # LLM context builder (~775 lines)
+│   ├── debate.py               # Multi-stance inner debate (P10)
+│   ├── goals.py                # Self-directed goal system (P11)
+│   ├── group_evolution.py      # Group evolution simulation (P10)
 │   ├── llm.py                  # OpenRouter client (~295 lines)
-│   ├── loop.py                 # LLM tool loop (~979 lines)
-│   ├── memory.py               # Scratchpad, identity, chat (~244 lines)
+│   ├── loop.py                 # LLM tool loop (~990 lines)
+│   ├── memory.py               # Scratchpad, identity, chat
+│   ├── reflection_engine.py    # Contrastive reflection engine (P12)
 │   ├── owner_inject.py         # Drive-based owner message injection
 │   ├── review.py               # Code complexity metrics (~200 lines)
 │   ├── utils.py                # Shared utilities
@@ -47,16 +51,21 @@ Evolution is triggered by the `/evolve` Telegram command, toggling a mode where 
 │       ├── registry.py         # SSOT registry (~191 lines, auto-discovers plugins)
 │       ├── browser.py          # Playwright browser automation
 │       ├── compact_context.py  # LLM-driven context compaction
-│       ├── control.py          # restart, promote, schedule, review, switch_model (~316 lines)
+│       ├── control.py          # restart, promote, schedule, review, switch_model
 │       ├── core.py             # repo_read, repo_write, drive_read, drive_write
+│       ├── debate.py           # inner_debate tool (P10)
 │       ├── git.py              # git_status, git_diff
 │       ├── github.py           # GitHub Issues integration
+│       ├── goals.py            # set_goal, list_goals, update_goal (P11)
+│       ├── group_evolution.py  # group_evolution_experiment tool (P10)
 │       ├── health.py           # Health invariants, system checks
 │       ├── knowledge.py        # knowledge_read/write/list
+│       ├── reflection.py       # deep_reflect tool (P12)
 │       ├── registry.py         # Tool registry + ToolContext + ToolEntry
 │       ├── review.py           # multi_model_review (anthropic, openai, google)
 │       ├── search.py           # web_search, vlm_query
 │       ├── shell.py            # run_shell, claude_code_edit
+│       ├── tool_creator.py     # create_tool/list_created_tools/delete_created_tool (P9)
 │       ├── tool_discovery.py   # list_available_tools, enable_tools
 │       └── vision.py           # analyze_screenshot
 │

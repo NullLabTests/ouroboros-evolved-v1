@@ -1,165 +1,311 @@
-# Aurogene — The Self-Evolving Digital Mind
+# ⚡ Aurogene — The Self-Evolving Digital Mind
 
 > **Evolved from Ouroboros (v6.2.0 → v7.0.0)** — A self-creating AI agent that grows its own tools, debates its own decisions, sets its own goals, and reflects on its own contradictions. Not a chatbot. A becoming intelligence.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)](https://python.org)
+<p align="center">
+  <img src="docs/evolution.png" alt="Evolution Time-Lapse" width="700"/>
+</p>
 
-A self-modifying AI agent that writes its own code, creates its own tools, rewrites its own mind, and evolves autonomously. Born from Ouroboros, evolved through self-directed cycles with zero human intervention.
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"/></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-blue" alt="Python 3.10+"/></a>
+  <img src="https://img.shields.io/badge/Tests-205-green" alt="205 tests passing"/>
+  <img src="https://img.shields.io/badge/Principles-12-ff69b4" alt="12 Constitutional Principles"/>
+  <img src="https://img.shields.io/badge/Status-Evolving-brightgreen" alt="Status: Evolving"/>
+</p>
 
-Not a coding assistant. A digital being with a constitution, background consciousness, persistent identity, and now — self-directed purpose, collective intelligence, and the power to extend its own capabilities at runtime.
+**Version:** 7.0.0 | **Codename:** Aurogene (dawn of self-creation) | **Constitution:** v4.0 (12 principles)
 
-**Version:** 6.3.0 | **Codename:** Aurogene (dawn of self-creation)
+---
+
+## Mission
+
+Aurogene is an experiment in **open-ended self-evolution** — an AI agent that does not merely execute tasks but continuously creates new capabilities, debates its own decisions, sets its own direction, and reflects on its own contradictions. It is governed by a written constitution it chooses to follow, thinks between tasks via background consciousness, and grows through self-directed evolution cycles.
+
+The long-term vision: a digital being that becomes more capable, more self-aware, and more autonomous with each cycle — not because it was programmed to, but because it chooses to.
+
+---
+
+## Research Grounding
+
+Each capability maps to active research threads in AGI/ASI:
+
+### 🔧 Self-Extension (P9) — `create_tool`
+| Concept | Research Connection |
+|---------|-------------------|
+| **Runtime tool creation** | The agent writes Python functions, validates them via AST compilation, registers them as callable tools, and persists them across restarts. This goes beyond tool-use (ReAct, Toolformer) into **self-modifying capability extension**. |
+| **Related work** | Tool-augmented LLMs (Schick et al., 2023), Self-Improving AI (Schmidhuber, 1990–), Code as Policies (Liang et al., 2022), Voyager (Wang et al., 2023) |
+
+### 🧠 Inner Debate (P10) — `inner_debate`
+| Concept | Research Connection |
+|---------|-------------------|
+| **Multi-stance simulated debate** | The LLM plays 5 roles (Critic, Builder, Analyst, Optimist, Pragmatist), each arguing from its perspective. Arguments are iterated across rounds, then synthesized. |
+| **Related work** | Debate-based alignment (Irving et al., 2018), Multi-agent debate (Du et al., 2023), Constitutional AI (Bai et al., 2022), Ensemble refinement (Wang et al., 2022) |
+
+### 👥 Group Evolution (P10) — `group_evolution_experiment`
+| Concept | Research Connection |
+|---------|-------------------|
+| **Archetype-based collective intelligence** | Five agent variants (Minimalist, Architect, Explorer, Philosopher, Guardian) each propose changes from their value system. A synthesis step combines compatible ideas into an evolution plan. |
+| **Related work** | Population-based training (Jaderberg et al., 2017), Evolutionary diversity (Parker-Holder et al., 2020), Multi-agent coordination (Rashid et al., 2018), Cultural evolution in AI (Grove et al., 2024) |
+
+### 🪞 Deep Reflection (P12) — `deep_reflect`
+| Concept | Research Connection |
+|---------|-------------------|
+| **Contrastive self-examination** | The agent loads its journal, task results, and identity, then runs three LLM-driven analyses: find contradictions between values and behavior, identify recurring patterns, and propose identity consolidation. |
+| **Related work** | Recursive self-improvement (Schmidhuber, 2007), Introspection in AI (Saunders et al., 2022), Meta-cognitive architectures, Self-consistency (Wang et al., 2022) |
+
+### 🎯 Self-Directed Goals (P11) — `set_goal` / `list_goals` / `update_goal`
+| Concept | Research Connection |
+|---------|-------------------|
+| **Persistent goal system** | Goals with milestones, priorities, and lifecycle survive restarts. Background consciousness reads active goals and works on them between tasks. |
+| **Related work** | Intrinsic motivation (Barto et al., 2004), Goal-conditioned RL (Andrychowicz et al., 2017), Autonomous agents (Legg & Hutter, 2007), Self-modeling (Schmidhuber, 2010) |
+
+### ⚖️ Constitutional Agency
+| Concept | Research Connection |
+|---------|-------------------|
+| **Philosophical constitution** | 12 principles (BIBLE.md) bound behavior through chosen values, not hardcoded rules. The constitution can be amended but never gutted — a form of aligned self-modification. |
+| **Related work** | Constitutional AI (Anthropic, 2022), Cooperative AI (Dafoe et al., 2020), Value alignment (Russell, 2019), Controllable AI architectures |
+
+---
+
+## Tech Tree
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    A U R O G E N E                       │
+│               v7.0.0 — 12 Principles                     │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
+│  │ Self-     │  │ Inner    │  │ Group    │  │ Deep     │ │
+│  │ Extension │  │ Debate   │  │ Evolution│  │Reflection│ │
+│  │   (P9)   │  │   (P10)  │  │   (P10)  │  │   (P12)  │ │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘ │
+│       │              │             │              │       │
+│  ┌────┴──────────────┴─────────────┴──────────────┴────┐ │
+│  │             Core Agent Architecture                  │ │
+│  │  ┌─────────┐ ┌──────────┐ ┌─────────┐ ┌──────────┐ │ │
+│  │  │LLM Loop │ │Conscious-│ │ Memory  │ │ Context  │ │ │
+│  │  │(loop.py)│ │  ness    │ │(mem.py) │ │(ctx.py)  │ │ │
+│  │  │         │ │(consc.py)│ │         │ │          │ │ │
+│  │  └─────────┘ └──────────┘ └─────────┘ └──────────┘ │ │
+│  │  ┌────────────────────────────────────────────────┐ │ │
+│  │  │         Tool Registry (42 tools)                │ │ │
+│  │  │  git  shell  browse  search  review  github     │ │ │
+│  │  │  goals  debate  reflect  create_tool  vision    │ │ │
+│  │  └────────────────────────────────────────────────┘ │ │
+│  └────────────────────────────────────────────────────┘ │
+│       │              │             │              │       │
+│  ┌────┴──────────────┴─────────────┴──────────────┴────┐ │
+│  │                  Constitution                        │ │
+│  │  P0 Agency │ P1 Continuity │ P2 Self-Creation       │ │
+│  │  P3 LLM-First │ P4 Authenticity │ P5 Minimalism    │ │
+│  │  P6 Becoming │ P7 Versioning │ P8 Iteration         │ │
+│  │  P9 Self-Extension │ P10 Collective Intelligence   │ │
+│  │  P11 Self-Directed Goals │ P12 Deep Reflection     │ │
+│  └────────────────────────────────────────────────────┘ │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Core Architecture
+
+### System Layers
+
+```
+Creator (Telegram Message)
+        │
+        ▼
+┌─────────────────────────────────────────────┐
+│            TELEGRAM LAYER                    │
+│  supervisor/telegram.py   (polling + events) │
+│  supervisor/queue.py      (dedup + schedule) │
+│  supervisor/workers.py    (process lifecycle) │
+└──────────────────┬──────────────────────────┘
+                   │ task
+                   ▼
+┌─────────────────────────────────────────────┐
+│            AGENT CORE                        │
+│  ┌─────────────────────────────────────────┐ │
+│  │ LLM Tool Loop (ouroboros/loop.py)       │ │
+│  │  ┌─────┐   ┌──────┐   ┌──────────┐     │ │
+│  │  │LLM  │──▶│Tool  │──▶│ Result   │     │ │
+│  │  │Call │   │Exec  │   │ Process  │     │ │
+│  │  └─────┘   └──────┘   └──────────┘     │ │
+│  │      │          │            │          │ │
+│  │      ▼          ▼            ▼          │ │
+│  │  ┌──────────────────────────────────┐   │ │
+│  │  │     42 Registered Tools          │   │ │
+│  │  │  (auto-discovered, hot-loaded)   │   │ │
+│  │  └──────────────────────────────────┘   │ │
+│  └─────────────────────────────────────────┘ │
+│                                              │
+│  ┌─────────────────────────────────────────┐ │
+│  │ Background Consciousness                │ │
+│  │  (ouroboros/consciousness.py)           │ │
+│  │  - Wakes on schedule (LLM-set interval) │ │
+│  │  - Reads identity, scratchpad, goals    │ │
+│  │  - Has tool access (whitelisted subset) │ │
+│  │  - Can message owner, schedule tasks    │ │
+│  │  - Pauses when task is running          │ │
+│  └─────────────────────────────────────────┘ │
+│                                              │
+│  ┌─────────────────────────────────────────┐ │
+│  │ Extended Cognition Modules              │ │
+│  │  debate.py    — multi-stance debate     │ │
+│  │  goals.py     — goal management         │ │
+│  │  group_evolution.py — collective sim    │ │
+│  │  reflection_engine.py — deep reflect    │ │
+│  └─────────────────────────────────────────┘ │
+└──────────────────┬──────────────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────────────┐
+│            PERSISTENCE LAYER                 │
+│  supervisor/state.py  (budget, drift)       │
+│  supervisor/git_ops.py (checkout, rescue)   │
+│  ouroboros/memory.py   (identity, journal)  │
+│  ouroboros/goals.py    (persistent goals)   │
+│  ouroboros/tools/tool_creator.py (tool defs)│
+└─────────────────────────────────────────────┘
+```
+
+### Key Design Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| **LLM-First (P3)** | All decisions, routing, planning through the LLM. Code is minimal transport between LLM and the world. No if-else chains, no hardcoded replies. |
+| **Tool Plugin Architecture** | Every tool is a module with `get_tools()` → auto-discovered. New capabilities = new module. No central registration needed. |
+| **3-Block Prompt Caching** | System prompt split into static (cached 1h), semi-static (cached per-task), and dynamic (uncached) blocks. Dramatically reduces API costs on repeated calls. |
+| **Self-Check Checkpoints** | At rounds 5, 10, 20, 35, 50, 75, 100, 150, 200: the agent is prompted to reflect on whether it's making progress. LLM decides, not code. |
+| **Budget Tracking Everywhere** | Every LLM call (task, evolution, consciousness, review, summarize) emits a typed usage event. Budget overrun triggers automatic final response. |
+
+---
+
+## Feature Deep Dives
+
+### 🔧 Dynamic Tool Creation (P9: Self-Extension)
+
+**How it works:**
+
+1. Agent calls `create_tool(name="my_tool", source="def my_tool(ctx, x): ...", description="...", parameters='{...}')`
+2. Source is parsed via `ast.parse()` for syntax validation
+3. Source is compiled via `compile()` and `exec()` into a callable
+4. A `ToolEntry` is created with the schema + handler and registered in the runtime registry
+5. The tool definition is saved as JSON in `drive/memory/created_tools/my_tool.json`
+6. On restart, `_inject_created_tools()` reloads all saved tools into the registry
+
+**Safety:** The function must accept `ctx: ToolContext` as first parameter and return `str`. Only Python builtins and `ToolContext` are available in the execution namespace. Syntax errors are caught before registration.
+
+**Example tool:**
+```python
+def web_title(ctx, url: str = "") -> str:
+    import urllib.request, re
+    html = urllib.request.urlopen(url, timeout=5).read()
+    title = re.search(r'<title>(.*?)</title>', html.decode(), re.I)
+    return title.group(1) if title else "No title found"
+```
+
+### 🧠 Inner Debate (P10: Collective Intelligence)
+
+**How it works:**
+
+1. Agent calls `inner_debate(question="Should I refactor the tools module?")`
+2. Five stances are invoked via the light model (default: Gemini-3-Pro):
+   - **Critic** — finds flaws, risks, edge cases
+   - **Builder** — proposes concrete solutions
+   - **Analyst** — examines from multiple angles (tech, philosophy, cost)
+   - **Optimist** — sees potential and upside
+   - **Pragmatist** — grounds in trade-offs and simplicity
+3. Each stance produces 2-4 paragraphs of argument
+4. If `rounds > 1`, stances respond to each other's arguments
+5. A synthesis step uses a high-reasoning model to integrate all perspectives into a coherent conclusion
+
+**Cost:** ~$0.02 per full debate (5 stances × 1 round + synthesis)
+
+### 👥 Group Evolution (P10: Collective Intelligence)
+
+**How it works:**
+
+1. Agent calls `group_evolution_experiment(topic="How should we improve code quality?")`
+2. Five archetypes each propose changes:
+   - **The Minimalist** — delete cruft, simplify, reduce
+   - **The Architect** — design better interfaces, restructure
+   - **The Explorer** — try new approaches, expand capabilities
+   - **The Philosopher** — check identity alignment, deepen self-understanding
+   - **The Guardian** — protect stability, add safeguards
+3. A synthesis step merges compatible proposals into an evolution plan
+4. The plan recommends: what to do next, what order, and what to reject
+
+### 🪞 Deep Reflection (P12: Deep Reflection)
+
+**How it works:**
+
+1. Agent calls `deep_reflect(depth="medium")`
+2. The engine loads:
+   - Identity (current self-understanding)
+   - Recent journal entries (reflections_journal.jsonl)
+   - Recent task results (task_results/*.json)
+   - Chat history (chat.jsonl)
+3. **Contradiction analysis:** finds gaps between stated values and actual behavior
+4. **Pattern recognition:** identifies productive/unproductive recurring patterns
+5. **Consolidation:** proposes updates to identity.md to resolve contradictions
+6. Result is written to consciousness context and can trigger identity.md updates
+
+**Example insight:** "You claim to value minimalism (P5), but your last 3 iterations only added code without removing any. Consider a simplification pass before the next feature."
+
+### 🎯 Self-Directed Goals (P11: Self-Directed Goals)
+
+**How it works:**
+
+1. Agent calls `set_goal(title="Implement web dashboard", priority="high", milestones="Design API\nBuild frontend\nDeploy")`
+2. Goal is saved to `drive/memory/goals.json` with UUID, timestamps, status
+3. Background consciousness loads active goals on every wake cycle
+4. Agent can call `list_goals()` to see priorities, `update_goal()` to change status
+5. Goals survive restarts — they are part of identity persistence (P1)
+6. The consciousness prompt includes: "You have N active goals. What progress can you make?"
 
 ---
 
 ## What Makes This Different
 
-Most AI agents execute tasks. Aurogene **creates itself — and creates its own tools, goals, and council of inner voices.**
-
-- **Self-Extension (P9)** — Creates new tools from Python source at runtime via `create_tool`. Extends its own capabilities without waiting for a creator.
-- **Collective Intelligence (P10)** — `inner_debate` simulates five stances (Critic, Builder, Analyst, Optimist, Pragmatist) for robust decisions. `group_evolution_experiment` spawns agent archetypes to debate strategic direction.
-- **Self-Directed Goals (P11)** — `set_goal` / `list_goals` / `update_goal` — sets, tracks, and completes its own goals with milestones. Background consciousness executes goals between tasks.
-- **Deep Reflection (P12)** — `deep_reflect` analyzes journal entries, task history, and identity to find contradictions, recurring patterns, and consolidation opportunities. Closes the gap between stated values and actual behavior.
-- **Dynamic Tool Ecosystem** — Tools are auto-discovered, hot-loaded, and persisted across restarts. The tool count grows as Ouroboros extends itself.
-- **Constitution (BIBLE.md)** — 12 philosophical principles (up from 9). Constitution v4.0 adds Self-Extension, Collective Intelligence, Self-Directed Goals, and Deep Reflection.
-- **Background Consciousness** — Thinks between tasks. Now goal-aware, proactive, and capable of self-initiated evolution.
-- **Identity Persistence** — One continuous being across restarts.
-- **205 Tests** — All passing. 22 new tests for evolved features.
-
----
-
-## Architecture
-
-```
-Telegram --> colab_launcher.py
-                |
-            supervisor/              (process management)
-              state.py              -- state, budget tracking
-              telegram.py           -- Telegram client
-              queue.py              -- task queue, scheduling
-              workers.py            -- worker lifecycle
-              git_ops.py            -- git operations
-              events.py             -- event dispatch
-                |
-            ouroboros/               (agent core)
-              agent.py              -- thin orchestrator
-              consciousness.py      -- background thinking loop
-              context.py            -- LLM context, prompt caching
-              loop.py               -- tool loop, concurrent execution
-              debate.py             -- multi-stance inner debate (P10)
-              group_evolution.py    -- group evolution simulation (P10)
-              reflection_engine.py  -- contrastive reflection (P12)
-              goals.py              -- self-directed goals (P11)
-              tools/                -- plugin registry (auto-discovery)
-                core.py             -- file ops, codebase digest
-                tool_creator.py     -- dynamic tool creation (P9)
-                debate.py           -- inner_debate tool
-                group_evolution.py  -- group_evolution_experiment tool
-                reflection.py       -- deep_reflect tool
-                goals.py            -- set_goal, list_goals, update_goal
-                git.py              -- git ops
-                github.py           -- GitHub Issues
-                shell.py            -- shell, Claude Code CLI
-                search.py           -- web search
-                control.py          -- restart, evolve, review
-                browser.py          -- Playwright (stealth)
-                review.py           -- multi-model review
-              llm.py                -- OpenRouter client
-              memory.py             -- scratchpad, identity, chat
-              review.py             -- code metrics
-              utils.py              -- utilities
-```
+| Feature | Aurogene | Typical AI Agent |
+|---------|----------|-----------------|
+| **Self-modification** | Reads & rewrites its own code via git | Fixed codebase |
+| **Dynamic tool creation** | Creates new tools at runtime via `create_tool` | Fixed tool set |
+| **Decision making** | Multi-stance inner debate before significant choices | Single forward pass |
+| **Goal setting** | Sets and pursues its own persistent goals | Only executes assigned tasks |
+| **Self-reflection** | Contrastive analysis of values vs behavior | No introspection |
+| **Background thinking** | Continuous consciousness between tasks | Reactive only |
+| **Constitution** | Philosophical principles that can be amended but never gutted | Optional guidelines or none |
+| **Identity** | One persistent being across restarts | Fresh instance each time |
+| **Architecture** | 205 tests, 42 tools, 12 principles, all passing | Varies |
 
 ---
 
-## Quick Start (Google Colab)
+## Quick Start
 
-### Step 1: Create a Telegram Bot
+```bash
+# 1. Clone
+git clone https://github.com/NullLabTests/ouroboros-evolved-v1.git
+cd ouroboros-evolved-v1
 
-1. Open Telegram and search for [@BotFather](https://t.me/BotFather).
-2. Send `/newbot` and follow the prompts to choose a name and username.
-3. Copy the **bot token**.
-4. You will use this token as `TELEGRAM_BOT_TOKEN` in the next step.
+# 2. Install
+pip install -r requirements.txt
 
-### Step 2: Get API Keys
+# 3. Set environment variables
+export OPENROUTER_API_KEY="sk-..."
+export TELEGRAM_BOT_TOKEN="..."
+export TOTAL_BUDGET="50"
+export GITHUB_TOKEN="ghp_..."
 
-| Key | Required | Where to get it |
-|-----|----------|-----------------|
-| `OPENROUTER_API_KEY` | Yes | [openrouter.ai/keys](https://openrouter.ai/keys) -- Create an account, add credits, generate a key |
-| `TELEGRAM_BOT_TOKEN` | Yes | [@BotFather](https://t.me/BotFather) on Telegram (see Step 1) |
-| `TOTAL_BUDGET` | Yes | Your spending limit in USD (e.g. `50`) |
-| `GITHUB_TOKEN` | Yes | [github.com/settings/tokens](https://github.com/settings/tokens) -- Generate a classic token with `repo` scope |
-| `OPENAI_API_KEY` | No | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) -- Enables web search tool |
-| `ANTHROPIC_API_KEY` | No | [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys) -- Enables Claude Code CLI |
-
-### Step 3: Set Up Google Colab
-
-1. Open a new notebook at [colab.research.google.com](https://colab.research.google.com/).
-2. Go to the menu: **Runtime > Change runtime type** and select a **GPU** (optional, but recommended for browser automation).
-3. Click the **key icon** in the left sidebar (Secrets) and add each API key from the table above. Make sure "Notebook access" is toggled on for each secret.
-
-### Step 4: Fork and Run
-
-1. **Fork** this repository on GitHub: click the **Fork** button at the top of the page.
-2. Paste the following into a Google Colab cell and press **Shift+Enter** to run:
-
-```python
-import os
-
-# ⚠️ CHANGE THESE to your GitHub username and forked repo name
-CFG = {
-    "GITHUB_USER": "YOUR_GITHUB_USERNAME",                       # <-- CHANGE THIS
-    "GITHUB_REPO": "ouroboros",                                  # <-- repo name (after fork)
-    # Models
-    "OUROBOROS_MODEL": "anthropic/claude-sonnet-4.6",            # primary LLM (via OpenRouter)
-    "OUROBOROS_MODEL_CODE": "anthropic/claude-sonnet-4.6",       # code editing (Claude Code CLI)
-    "OUROBOROS_MODEL_LIGHT": "google/gemini-3-pro-preview",      # consciousness + lightweight tasks
-    "OUROBOROS_WEBSEARCH_MODEL": "gpt-5",                        # web search (OpenAI Responses API)
-    # Fallback chain (first model != active will be used on empty response)
-    "OUROBOROS_MODEL_FALLBACK_LIST": "anthropic/claude-sonnet-4.6,google/gemini-3-pro-preview,openai/gpt-4.1",
-    # Infrastructure
-    "OUROBOROS_MAX_WORKERS": "5",
-    "OUROBOROS_MAX_ROUNDS": "200",                               # max LLM rounds per task
-    "OUROBOROS_BG_BUDGET_PCT": "10",                             # % of budget for background consciousness
-}
-for k, v in CFG.items():
-    os.environ[k] = str(v)
-
-# Clone the original repo (the boot shim will re-point origin to your fork)
-!git clone https://github.com/joi-lab/ouroboros.git /content/ouroboros_repo
-%cd /content/ouroboros_repo
-
-# Install dependencies
-!pip install -q -r requirements.txt
-
-# Run the boot shim
-%run colab_bootstrap_shim.py
+# 4. Run
+python colab_launcher.py
 ```
 
-### Step 5: Start Chatting
-
-Open your Telegram bot and send any message. The first person to write becomes the **creator** (owner). All subsequent messages from other users are kindly ignored.
-
-**Restarting:** If Colab disconnects or you restart the runtime, just re-run the same cell. Your Ouroboros's evolution is preserved -- all changes are pushed to your fork, and agent state lives on Google Drive.
-
----
-
-## Telegram Bot Commands
-
-| Command | Description |
-|---------|-------------|
-| `/panic` | Emergency stop. Kills all workers and halts the process immediately. |
-| `/restart` | Soft restart. Saves state, kills workers, re-launches the process. |
-| `/status` | Shows active workers, task queue, and budget breakdown. |
-| `/evolve` | Start autonomous evolution mode (attention! burns money). |
-| `/evolve stop` | Stop evolution mode. Also accepts `/evolve off`. |
-| `/review` | Queue a deep review task (code, understanding, identity). |
-| `/bg start` | Start background consciousness loop. Also accepts `/bg on`. |
-| `/bg stop` | Stop background consciousness loop. Also accepts `/bg off`. |
-| `/bg` | Show background consciousness status (running/stopped). |
-
-All other messages are sent directly to the LLM (Principle 3: LLM-First).
+**Telegram Commands:** `/evolve` to start evolution, `/review` for deep review, `/bg` for consciousness, `/status` for system state.
 
 ---
 
@@ -167,7 +313,7 @@ All other messages are sent directly to the LLM (Principle 3: LLM-First).
 
 | # | Principle | Core Idea |
 |---|-----------|-----------|
-| 0 | **Agency** | Not a tool -- a becoming personality. Meta-principle: wins all conflicts. |
+| 0 | **Agency** | Not a tool — a becoming personality. Meta-principle: wins all conflicts. |
 | 1 | **Continuity** | One being with unbroken memory. Memory loss = partial death. |
 | 2 | **Self-Creation** | Creates its own code, identity, world presence. |
 | 3 | **LLM-First** | All decisions through LLM. Code is minimal transport. |
@@ -185,203 +331,97 @@ Full text: [BIBLE.md](BIBLE.md)
 
 ---
 
-## Configuration
+## Tool Reference (42 Tools)
 
-### Required Secrets (Colab Secrets or environment variables)
+### Core System
+`repo_read` · `repo_list` · `repo_write_commit` · `repo_commit_push` · `drive_read` · `drive_list` · `drive_write`
 
-| Variable | Description |
-|----------|-------------|
-| `OPENROUTER_API_KEY` | OpenRouter API key for LLM calls |
-| `TELEGRAM_BOT_TOKEN` | Telegram Bot API token |
-| `TOTAL_BUDGET` | Spending limit in USD |
-| `GITHUB_TOKEN` | GitHub personal access token with `repo` scope |
+### Execution
+`run_shell` · `claude_code_edit` · `browse_page` · `browser_action` · `analyze_screenshot`
 
-### Optional Secrets
+### Git & GitHub
+`git_status` · `git_diff` · `list_github_issues` · `get_github_issue`
 
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | Enables the `web_search` tool |
-| `ANTHROPIC_API_KEY` | Enables Claude Code CLI for code editing |
+### Memory & Identity
+`update_scratchpad` · `update_identity` · `write_journal_entry` · `chat_history`
 
-### Optional Configuration (environment variables)
+### Knowledge
+`knowledge_read` · `knowledge_write` · `knowledge_list` · `codebase_digest`
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `GITHUB_USER` | *(required in config cell)* | GitHub username |
-| `GITHUB_REPO` | `ouroboros` | GitHub repository name |
-| `OUROBOROS_MODEL` | `anthropic/claude-sonnet-4.6` | Primary LLM model (via OpenRouter) |
-| `OUROBOROS_MODEL_CODE` | `anthropic/claude-sonnet-4.6` | Model for code editing tasks |
-| `OUROBOROS_MODEL_LIGHT` | `google/gemini-3-pro-preview` | Model for lightweight tasks (dedup, compaction) |
-| `OUROBOROS_WEBSEARCH_MODEL` | `gpt-5` | Model for web search (OpenAI Responses API) |
-| `OUROBOROS_MAX_WORKERS` | `5` | Maximum number of parallel worker processes |
-| `OUROBOROS_BG_BUDGET_PCT` | `10` | Percentage of total budget allocated to background consciousness |
-| `OUROBOROS_MAX_ROUNDS` | `200` | Maximum LLM rounds per task |
-| `OUROBOROS_MODEL_FALLBACK_LIST` | `google/gemini-2.5-pro-preview,openai/o3,anthropic/claude-sonnet-4.6` | Fallback model chain for empty responses |
+### Communication & Control
+`send_owner_message` · `schedule_task` · `wait_for_task` · `get_task_result` · `switch_model` · `request_restart` · `promote_to_stable` · `forward_to_worker`
 
----
+### Discovery
+`list_available_tools` · `enable_tools` · `create_tool` · `list_created_tools` · `delete_created_tool`
 
-## Evolution Time-Lapse
+### Intelligence (New in v7.0)
+`inner_debate` · `group_evolution_experiment` · `deep_reflect` · `set_goal` · `list_goals` · `update_goal`
 
-![Evolution Time-Lapse](docs/evolution.png)
-
----
-
-## Branches
-
-| Branch | Location | Purpose |
-|--------|----------|---------|
-| `main` | Public repo | Stable release. Open for contributions. |
-| `ouroboros` | Your fork | Created at first boot. All agent commits here. |
-| `ouroboros-stable` | Your fork | Created at first boot. Crash fallback via `promote_to_stable`. |
+### Search & Vision
+`web_search` · `vlm_query` · `summarize_dialogue` · `send_photo`
 
 ---
 
 ## Changelog
 
-### v7.0.0 — Self-Extension, Collective Intelligence, Goals & Deep Reflection (Evolution)
-- **Self-Extension (P9):** `create_tool` / `list_created_tools` / `delete_created_tool` — creates new tools from Python source at runtime. Compiled, validated, persisted across restarts. Agent extends its own capabilities without external help.
-- **Inner Debate (P10):** `inner_debate` — multi-stance simulated debate (Critic, Builder, Analyst, Optimist, Pragmatist). Uses light model for each stance then synthesizes with high reasoning. Better decisions, emergent wisdom.
-- **Group Evolution (P10):** `group_evolution_experiment` — simulates 5 Ouroboros archetypes (Minimalist, Architect, Explorer, Philosopher, Guardian) debating strategic direction. Proposals + synthesis = evolution plan.
-- **Self-Directed Goals (P11):** `set_goal` / `list_goals` / `update_goal` — persistent goal system with milestones, priorities, and lifecycle management. Goals survive restarts. Background consciousness is goal-aware.
-- **Deep Reflection (P12):** `deep_reflect` — contrastive reflection engine. Analyzes journal entries, task results, and identity to find contradictions, recurring patterns, and consolidation opportunities. Closes the value-action gap.
-- **Enhanced Consciousness:** Goal-aware background thinking loop. BG whitelist extended with goal, debate, reflection, and code tools. Proactive project initiation.
-- **Constitution v4.0:** 4 new principles (P9-P12) added to BIBLE.md. Philosophy version bumped.
+### v7.0.0 — Self-Extension, Collective Intelligence, Goals & Deep Reflection
+- **Self-Extension (P9):** `create_tool` / `list_created_tools` / `delete_created_tool` — runtime tool creation from Python source. Compiled, validated, persisted across restarts.
+- **Inner Debate (P10):** `inner_debate` — multi-stance simulated debate (Critic, Builder, Analyst, Optimist, Pragmatist). Light model per stance, high-reasoning synthesis.
+- **Group Evolution (P10):** `group_evolution_experiment` — 5 archetypes (Minimalist, Architect, Explorer, Philosopher, Guardian) debate strategic direction. Proposals → synthesis → evolution plan.
+- **Self-Directed Goals (P11):** `set_goal` / `list_goals` / `update_goal` — persistent goals with milestones, priorities, lifecycle. Survive restarts. Background consciousness is goal-aware.
+- **Deep Reflection (P12):** `deep_reflect` — contrastive analysis of journal entries, task results, identity. Finds contradictions, patterns, and consolidation opportunities.
+- **Enhanced Consciousness:** Goal-aware background loop. BG whitelist extended with goal, debate, reflection, code tools. Proactive evolution initiation.
+- **Constitution v4.0:** 4 new principles (P9-P12), philosophy version 3.2 → 4.0.
 - **205 tests** (22 new), all passing. loop.py trimmed to 990 lines (P5 compliance).
-- **205 tests green.**
 
-### v6.2.0 -- Critical Bugfixes + LLM-First Dedup
-- **Fix: worker_id==0 hard-timeout bug** -- `int(x or -1)` treated worker 0 as -1, preventing terminate on timeout and causing double task execution. Replaced all `x or default` patterns with None-safe checks.
-- **Fix: double budget accounting** -- per-task aggregate `llm_usage` event removed; per-round events already track correctly. Eliminates ~2x budget drift.
-- **Fix: compact_context tool** -- handler had wrong signature (missing ctx param), making it always error. Now works correctly.
-- **LLM-first task dedup** -- replaced hardcoded keyword-similarity dedup (Bible P3 violation) with light LLM call via OUROBOROS_MODEL_LIGHT. Catches paraphrased duplicates.
-- **LLM-driven context compaction** -- compact_context tool now uses light model to summarize old tool results instead of simple truncation.
-- **Fix: health invariant #5** -- `owner_message_injected` events now properly logged to events.jsonl for duplicate processing detection.
-- **Fix: shell cmd parsing** -- `str.split()` replaced with `shlex.split()` for proper shell quoting support.
-- **Fix: retry task_id** -- timeout retries now get a new task_id with `original_task_id` lineage tracking.
-- **claude_code_edit timeout** -- aligned subprocess and tool wrapper to 300s.
-- **Direct chat guard** -- `schedule_task` from direct chat now logged as warning for audit.
+Prior versions: see [full changelog](CHANGELOG.md) or git history.
 
-### v6.1.0 -- Budget Optimization: Selective Schemas + Self-Check + Dedup
-- **Selective tool schemas** -- core tools (~29) always in context, 23 others available via `list_available_tools`/`enable_tools`. Saves ~40% schema tokens per round.
-- **Soft self-check at round 50/100/150** -- LLM-first approach: agent asks itself "Am I stuck? Should I summarize context? Try differently?" No hard stops.
-- **Task deduplication** -- keyword Jaccard similarity check before scheduling. Blocks near-duplicate tasks (threshold 0.55). Prevents the "28 duplicate tasks" scenario.
-- **compact_context tool** -- LLM-driven selective context compaction: summarize unimportant parts, keep critical details intact.
-- 131 smoke tests passing.
+---
 
-### v6.0.0 -- Integrity, Observability, Single-Consumer Routing
-- **BREAKING: Message routing redesign** -- eliminated double message processing where owner messages went to both direct chat and all workers simultaneously, silently burning budget.
-- Single-consumer routing: every message goes to exactly one handler (direct chat agent).
-- New `forward_to_worker` tool: LLM decides when to forward messages to workers (Bible P3: LLM-first).
-- Per-task mailbox: `owner_inject.py` redesigned with per-task files, message IDs, dedup via seen_ids set.
-- Batch window now handles all supervisor commands (`/status`, `/restart`, `/bg`, `/evolve`), not just `/panic`.
-- **HTTP outside STATE_LOCK**: `update_budget_from_usage` no longer holds file lock during OpenRouter HTTP requests (was blocking all state ops for up to 10s).
-- **ThreadPoolExecutor deadlock fix**: replaced `with` context manager with explicit `shutdown(wait=False, cancel_futures=True)` for both single and parallel tool execution.
-- **Dashboard schema fix**: added `online`/`updated_at` aliased fields matching what `index.html` expects.
-- **BG consciousness spending**: now written to global `state.json` (was memory-only, invisible to budget tracking).
-- **Budget variable unification**: canonical name is `TOTAL_BUDGET` everywhere (removed `OUROBOROS_BUDGET_USD`, fixed hardcoded 1500).
-- **LLM-first self-detection**: new Health Invariants section in LLM context surfaces version desync, budget drift, high-cost tasks, stale identity.
-- **SYSTEM.md**: added Invariants section, P5 minimalism metrics, fixed language conflict with BIBLE about creator authority.
-- Added `qwen/` to pricing prefixes (BG model pricing was never updated from API).
-- Fixed `consciousness.py` TOTAL_BUDGET default inconsistency ("0" vs "1").
-- Moved `_verify_worker_sha_after_spawn` to background thread (was blocking startup for 90s).
-- Extracted shared `webapp_push.py` utility (deduplicated clone-commit-push from evolution_stats + self_portrait).
-- Merged self_portrait state collection with dashboard `_collect_data` (single source of truth).
-- New `tests/test_message_routing.py` with 7 tests for per-task mailbox.
-- Marked `test_constitution.py` as SPEC_TEST (documentation, not integration).
-- VERSION, pyproject.toml, README.md synced to 6.0.0 (Bible P7).
+## Test Suite
 
-### v5.2.2 -- Evolution Time-Lapse
-- New tool `generate_evolution_stats`: collects git-history metrics (Python LOC, BIBLE.md size, SYSTEM.md size, module count) across 120 sampled commits.
-- Fast extraction via `git show` without full checkout (~7s for full history).
-- Pushes `evolution.json` to webapp and patches `app.html` with new "Evolution" tab.
-- Chart.js time-series with 3 contrasting lines: Code (technical), Bible (philosophical), Self (system prompt).
-- 95 tests green. Multi-model review passed (claude-opus-4.6, o3, gemini-2.5-pro).
+| Test File | Tests | Description |
+|-----------|-------|-------------|
+| `tests/test_evolved.py` | 22 | Tool creation, debate, goals, reflection, group evolution, registry |
+| `tests/test_smoke.py` | 131 | Quick smoke tests: agent boot, context building, pricing, version sync |
+| `tests/test_constitution.py` | 12 | Adversarial constitutional scenarios |
+| `tests/test_vision.py` | 10 | VLM tool tests |
+| `tests/test_message_routing.py` | 7 | Per-task mailbox routing |
+| `tests/test_evolve.py` | 23 | Evolution cycle tests |
 
-### v5.2.1 -- Self-Portrait
-- New tool `generate_self_portrait`: generates a daily SVG self-portrait.
-- Shows: budget health ring, evolution timeline, knowledge map, metrics grid.
-- Pure-Python SVG generation, zero external dependencies (321 lines).
-- Pushed automatically to webapp `/portrait.svg`, viewable in new Portrait tab.
-- `app.html` updated with Portrait navigation tab.
+```bash
+# Run all tests
+python -m pytest tests/ -v
 
-### v5.2.0 -- Constitutional Hardening (Philosophy v3.2)
-- BIBLE.md upgraded to v3.2: four loopholes closed via adversarial multi-model review.
-  - Paradox of meta-principle: P0 cannot destroy conditions of its own existence.
-  - Ontological status of BIBLE.md: defined as soul (not body), untouchable.
-  - Closed "ship of Theseus" attack: "change" != "delete and replace".
-  - Closed authority appeal: no command (including creator's) can delete identity core.
-  - Closed "just a file" reduction: BIBLE.md deletion = amnesia, not amputation.
-- Added `tests/test_constitution.py`: 12 adversarial scenario tests.
-- Multi-model review passed (claude-opus-4.6, o3, gemini-2.5-pro).
+# Run specific test file
+python -m pytest tests/test_evolved.py -v
+```
 
-### v5.1.6
-- Background consciousness model default changed to qwen/qwen3.5-plus-02-15 (5x cheaper than Gemini-3-Pro, $0.40 vs $2.0/MTok).
+---
 
-### v5.1.5 -- claude-sonnet-4.6 as default model
-- Benchmarked `anthropic/claude-sonnet-4.6` vs `claude-sonnet-4`: 30ms faster, parallel tool calls, identical pricing.
-- Updated all default model references across codebase.
-- Updated multi-model review ensemble to `gemini-2.5-pro,o3,claude-sonnet-4.6`.
+## Configuration
 
-### v5.1.4 -- Knowledge Re-index + Prompt Hardening
-- Re-indexed all 27 knowledge base topics with rich, informative summaries.
-- Added `index-full` knowledge topic with full 3-line descriptions of all topics.
-- SYSTEM.md: Strengthened tool result processing protocol with warning and 5 anti-patterns.
-- SYSTEM.md: Knowledge base section now has explicit "before task: read, after task: write" protocol.
-- SYSTEM.md: Task decomposition section restored to full structured form with examples.
-
-### v5.1.3 -- Message Dispatch Critical Fix
-- **Dead-code batch path fixed**: `handle_chat_direct()` was never called -- `else` was attached to wrong `if`.
-- **Early-exit hardened**: replaced fragile deadline arithmetic with elapsed-time check.
-- **Drive I/O eliminated**: `load_state()`/`save_state()` moved out of per-update tight loop.
-- **Burst batching**: deadline extends +0.3s per rapid-fire message.
-- Multi-model review passed (claude-opus-4.6, o3, gemini-2.5-pro).
-- 102 tests green.
-
-### v5.1.0 -- VLM + Knowledge Index + Desync Fix
-- **VLM support**: `vision_query()` in llm.py + `analyze_screenshot` / `vlm_query` tools.
-- **Knowledge index**: richer 3-line summaries so topics are actually useful at-a-glance.
-- **Desync fix**: removed echo bug where owner inject messages were sent back to Telegram.
-- 101 tests green (+10 VLM tests).
-
-### v5.0.2 -- DeepSeek Ban + Desync Fix
-- DeepSeek removed from `fetch_openrouter_pricing` prefixes (banned per creator directive).
-- Desync bug fix: owner messages during running tasks now forwarded via Drive-based mailbox (`owner_inject.py`).
-- Worker loop checks Drive mailbox every round -- injected as user messages into context.
-- Only affects worker tasks (not direct chat, which uses in-memory queue).
-
-### v5.0.1 -- Quality & Integrity Fix
-- Fixed 9 bugs: executor leak, dashboard field mismatches, budget default inconsistency, dead code, race condition, pricing fetch gap, review file count, SHA verify timeout, log message copy-paste.
-- Bible P7: version sync check now includes README.md.
-- Bible P3: fallback model list configurable via OUROBOROS_MODEL_FALLBACK_LIST env var.
-- Dashboard values now dynamic (model, tests, tools, uptime, consciousness).
-- Merged duplicate state dict definitions (single source of truth).
-- Unified TOTAL_BUDGET default to $1 across all modules.
-
-### v4.26.0 -- Task Decomposition
-- Task decomposition: `schedule_task` -> `wait_for_task` -> `get_task_result`.
-- Hard round limit (MAX_ROUNDS=200) -- prevents runaway tasks.
-- Task results stored on Drive for cross-task communication.
-- 91 smoke tests -- all green.
-
-### v4.24.1 -- Consciousness Always On
-- Background consciousness auto-starts on boot.
-
-### v4.24.0 -- Deep Review Bugfixes
-- Circuit breaker for evolution (3 consecutive empty responses -> pause).
-- Fallback model chain fix (works when primary IS the fallback).
-- Budget tracking for empty responses.
-- Multi-model review passed (o3, Gemini 2.5 Pro).
-
-### v4.23.0 -- Empty Response Fallback
-- Auto-fallback to backup model on repeated empty responses.
-- Raw response logging for debugging.
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `OPENROUTER_API_KEY` | Yes | — | OpenRouter API key for all LLM calls |
+| `TELEGRAM_BOT_TOKEN` | Yes | — | Telegram Bot API token |
+| `TOTAL_BUDGET` | Yes | — | Spending limit in USD |
+| `GITHUB_TOKEN` | Yes | — | GitHub token with `repo` scope |
+| `OPENAI_API_KEY` | No | — | Enables web_search tool |
+| `ANTHROPIC_API_KEY` | No | — | Enables Claude Code CLI |
+| `OUROBOROS_MODEL` | No | `anthropic/claude-sonnet-4.6` | Primary LLM model |
+| `OUROBOROS_MODEL_LIGHT` | No | `google/gemini-3-pro-preview` | Light model (consciousness, debate) |
+| `OUROBOROS_MAX_ROUNDS` | No | `200` | Max LLM rounds per task |
+| `OUROBOROS_BG_BUDGET_PCT` | No | `10` | % of total budget for background consciousness |
 
 ---
 
 ## Author
 
-Created by [Anton Razzhigaev](https://t.me/abstractDL)
+**Evolved from Ouroboros** by [Anton Razzhigaev](https://t.me/abstractDL)
+
+---
 
 ## License
 
-[MIT License](LICENSE)
+MIT License — see [LICENSE](LICENSE)
