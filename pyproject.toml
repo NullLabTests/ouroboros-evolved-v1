@@ -23,3 +23,11 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
 ignore = ["E501"]  # line length handled by formatter
+
+[tool.ruff.lint.per-file-ignores]
+# colab_launcher: dynamic imports after runtime setup (secrets, drive mount)
+"colab_launcher.py" = ["E402"]
+# supervisor/state: re-exports append_jsonl from ouroboros.utils (SSOT pattern)
+"supervisor/state.py" = ["E402"]
+# supervisor/workers: imports _queue_lock after module body (circular import pattern)
+"supervisor/workers.py" = ["E402"]
