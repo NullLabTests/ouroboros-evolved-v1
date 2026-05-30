@@ -121,7 +121,7 @@ def test_goal_progress_chart_with_data(tmp_path):
 
 
 def test_health_dashboard_returns_html(tmp_path):
-    from ouroboros.tools.visuals import generate_health_dashboard, _health_html
+    from ouroboros.tools.visuals import _health_html, generate_health_dashboard
     with patch("ouroboros.tools.visuals._load_goals", return_value=[]), \
          patch("ouroboros.tools.visuals._load_created_tools", return_value=[]), \
          patch("ouroboros.tools.visuals._DRIVE_ROOT", tmp_path), \
