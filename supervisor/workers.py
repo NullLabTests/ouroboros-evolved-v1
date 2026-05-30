@@ -7,12 +7,9 @@ Queue operations moved to supervisor.queue.
 
 from __future__ import annotations
 
-import logging
-
-log = logging.getLogger(__name__)
-
 import datetime
 import json
+import logging
 import multiprocessing as mp
 import os
 import pathlib
@@ -25,6 +22,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from supervisor.state import append_jsonl, load_state
 from supervisor.telegram import send_with_budget
+
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Module-level config (set via init())

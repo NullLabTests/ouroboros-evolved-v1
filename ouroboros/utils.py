@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import pathlib
+import re as _re
 import subprocess
 import time
 from typing import Any, Dict, List, Optional
@@ -267,7 +268,6 @@ _SECRET_KEYS = frozenset([
 ])
 
 # Patterns that indicate leaked secrets in tool output
-import re as _re
 
 _SECRET_PATTERNS = _re.compile(
     r'ghp_[A-Za-z0-9]{30,}'       # GitHub personal access token

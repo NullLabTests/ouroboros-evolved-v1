@@ -8,7 +8,11 @@ Collects metrics per sampled commit:
   - py_lines: total lines across all .py files
   - bible_bytes: size of BIBLE.md in bytes
   - system_bytes: size of prompts/SYSTEM.md in bytes (proxy for self-concept)
+  - consciousness_bytes: size of prompts/CONSCIOUSNESS.md in bytes
   - module_count: number of .py files
+  - tool_count: number of ToolEntry definitions in ouroboros/tools/
+  - test_count: number of test functions in tests/
+  - principle_count: number of unique principles referenced in BIBLE.md
 """
 
 from __future__ import annotations
@@ -27,23 +31,34 @@ log = logging.getLogger(__name__)
 _VERSION_RE = re.compile(r"v(\d+\.\d+\.\d+)")
 _REPO_DIR = Path(os.environ.get("OUROBOROS_REPO_DIR", "/content/ouroboros_repo"))
 
-# How many data-points to generate (sampled across full history)
 MAX_POINTS = 100
 
-# ── Evolution tab HTML (injected into app.html) ────────────────────────────────
+_TEMPLATE_DIR = Path(__file__).resolve().parent
+
+def _load_dashboard_html() -> str:
+    tpl = _TEMPLATE_DIR / "dashboard_template.html"
+    if tpl.exists():
+        return tpl.read_text(encoding="utf-8")
+    log.warning("dashboard_template.html not found, using minimal fallback")
+    return "<html><body><h1>Aurogene Evolution Dashboard</h1><p>Template not found.</p></body></html>"
+
+_DASHBOARD_HTML = _load_dashboard_html()
+
 _EVOLUTION_NAV = '<div class="nav-item" data-tab="evolution"><span class="icon">📈</span> Evolution</div>'
 
 _EVOLUTION_TAB = """    <div class="tab-content" id="tab-evolution">
       <h2 style="color:var(--accent);margin-bottom:16px">📈 Evolution Time-Lapse</h2>
       <p style="color:var(--muted);margin-bottom:20px;font-size:13px">
-        Growth across three axes — Technical (code lines), Philosophical (BIBLE.md), Self-Concept (System Prompt) — since birth on Feb 16, 2026.
+        Growth across four axes — Technical (code lines), Philosophical (BIBLE.md),
+        Self-Concept (System Prompt), Consciousness — since birth on Feb 16, 2026.
       </p>
       <div id="evo-loading" style="text-align:center;padding:40px;color:var(--muted)">Loading evolution data…</div>
       <canvas id="evoChart" style="display:none;width:100%;max-height:450px"></canvas>
-      <div id="evo-stats" style="margin-top:20px;display:none;grid-template-columns:repeat(3,1fr);gap:12px"></div>
+      <div id="evo-stats" style="margin-top:20px;display:none;grid-template-columns:repeat(4,1fr);gap:12px"></div>
       <div style="margin-top:16px;text-align:right">
         <button onclick="loadEvolution()" style="background:var(--card);border:1px solid var(--accent);color:var(--accent);padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px">↻ Refresh</button>
       </div>
+      <div id="evo-version-bar" style="margin-top:12px;display:none;font-size:11px;color:var(--muted);text-align:center"></div>
     </div>
 """
 
@@ -57,15 +72,29 @@ function _fmtDate(ts) {
   return d.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
 }
 
+function _fmtFull(ts) {
+  return new Date(ts).toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'});
+}
+
+function _getVersionMarkers(pts) {
+  return pts.filter(p => p.version).map(p => ({
+    value: pts.indexOf(p),
+    text: 'v' + p.version,
+    py_lines: p.py_lines,
+  }));
+}
+
 async function loadEvolution() {
   const loading = document.getElementById('evo-loading');
   const canvas  = document.getElementById('evoChart');
   const stats   = document.getElementById('evo-stats');
+  const vbar    = document.getElementById('evo-version-bar');
   if (!loading) return;
   loading.textContent = 'Loading evolution data…';
   loading.style.display = 'block';
   canvas.style.display  = 'none';
   if (stats) stats.style.display = 'none';
+  if (vbar) vbar.style.display = 'none';
 
   try {
     const url = `evolution.json?t=${Date.now()}`;
@@ -79,15 +108,44 @@ async function loadEvolution() {
     const pyLines = pts.map(p => p.py_lines);
     const bible   = pts.map(p => +(p.bible_bytes / 1024).toFixed(2));
     const system  = pts.map(p => +(p.system_bytes / 1024).toFixed(2));
+    const conscious = pts.map(p => p.consciousness_bytes ? +(p.consciousness_bytes/1024).toFixed(2) : null);
+
+    const colors = {
+      code: '#00d1ff',
+      bible: '#a78bfa',
+      system: '#34d399',
+      consciousness: '#f0883e',
+    };
 
     loading.style.display = 'none';
     canvas.style.display  = 'block';
 
-    if (_evoChart) { _evoChart.destroy(); _evoChart = null; }
-
     const isDark    = document.documentElement.getAttribute('data-theme') !== 'light';
     const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
     const textColor = isDark ? '#9ca3af' : '#6b7280';
+
+    if (_evoChart) { _evoChart.destroy(); _evoChart = null; }
+
+    // Version markers plugin
+    const versionMarkers = _getVersionMarkers(pts);
+    const markerPlugin = versionMarkers.length ? {
+      id: 'evoVersionMarkers',
+      afterDraw(chart) {
+        const ctx = chart.ctx;
+        const meta = chart.getDatasetMeta(0);
+        if (!meta.data || !meta.data.length) return;
+        versionMarkers.forEach(({value, text, py_lines: pyl}) => {
+          if (value >= meta.data.length) return;
+          const pt = meta.data[value];
+          ctx.save();
+          ctx.fillStyle = 'rgba(255,255,255,0.7)';
+          ctx.font = '8px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('◆', pt.x, pt.y - 10);
+          ctx.restore();
+        });
+      }
+    } : {};
 
     _evoChart = new Chart(canvas.getContext('2d'), {
       type: 'line',
@@ -97,7 +155,7 @@ async function loadEvolution() {
           {
             label: 'Code (lines)',
             data: pyLines,
-            borderColor: '#00d1ff',
+            borderColor: colors.code,
             backgroundColor: 'rgba(0,209,255,0.08)',
             tension: 0.35, fill: true,
             yAxisID: 'yCode',
@@ -106,7 +164,7 @@ async function loadEvolution() {
           {
             label: 'Bible (KB)',
             data: bible,
-            borderColor: '#a78bfa',
+            borderColor: colors.bible,
             backgroundColor: 'rgba(167,139,250,0.08)',
             tension: 0.35, fill: false,
             yAxisID: 'yDoc',
@@ -115,9 +173,18 @@ async function loadEvolution() {
           {
             label: 'System Prompt (KB)',
             data: system,
-            borderColor: '#34d399',
+            borderColor: colors.system,
             backgroundColor: 'rgba(52,211,153,0.08)',
             tension: 0.35, fill: false,
+            yAxisID: 'yDoc',
+            pointRadius: 2, borderWidth: 2,
+          },
+          {
+            label: 'Consciousness (KB)',
+            data: conscious,
+            borderColor: colors.consciousness,
+            backgroundColor: 'rgba(240,136,62,0.08)',
+            tension: 0.35, fill: false, borderDash: [5, 3],
             yAxisID: 'yDoc',
             pointRadius: 2, borderWidth: 2,
           },
@@ -128,13 +195,33 @@ async function loadEvolution() {
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: { labels: { color: textColor, font: { size: 12 } } },
+          legend: { labels: { color: textColor, font: { size: 11 } } },
           tooltip: {
             callbacks: {
               title(items) {
                 const p = pts[items[0].dataIndex];
                 const v = p.version ? ` [v${p.version}]` : '';
-                return `${_fmtDate(p.ts)}${v} — ${p.msg.slice(0, 55)}`;
+                return `${_fmtFull(p.ts)}${v}`;
+              },
+              label(ctx) {
+                const p = pts[ctx.dataIndex];
+                let label = ctx.dataset.label + ': ';
+                if (ctx.dataset.yAxisID === 'yDoc') {
+                  label += ctx.parsed.y + ' KB';
+                } else {
+                  label += ctx.parsed.y.toLocaleString();
+                  const prev = ctx.dataIndex > 0 ? pts[ctx.dataIndex - 1] : null;
+                  if (prev) {
+                    const delta = p.py_lines - prev.py_lines;
+                    const sign = delta >= 0 ? '+' : '';
+                    label += ` (${sign}${delta.toLocaleString()})`;
+                  }
+                }
+                return label;
+              },
+              afterBody(items) {
+                const p = pts[items[0].dataIndex];
+                return `📦 ${p.msg.slice(0, 60)}`;
               },
             },
           },
@@ -146,29 +233,34 @@ async function loadEvolution() {
           },
           yCode: {
             type: 'linear', position: 'left',
-            ticks: { color: '#00d1ff' },
+            ticks: { color: colors.code },
             grid: { color: gridColor },
-            title: { display: true, text: 'Lines of Code', color: '#00d1ff', font: {size: 11} },
+            title: { display: true, text: 'Lines of Code', color: colors.code, font: {size: 11} },
           },
           yDoc: {
             type: 'linear', position: 'right',
-            ticks: { color: '#a78bfa' },
+            ticks: { color: colors.bible },
             grid: { drawOnChartArea: false },
-            title: { display: true, text: 'KB', color: '#a78bfa', font: {size: 11} },
+            title: { display: true, text: 'KB', color: colors.bible, font: {size: 11} },
           },
         },
       },
+      plugins: [markerPlugin],
     });
 
-    // Stats cards
+    // Stats cards with v7.0 enrichment
     if (stats) {
       const first = pts[0], last = pts[pts.length - 1];
-      const mult  = last.py_lines / Math.max(first.py_lines, 1);
+      const codeMult  = last.py_lines / Math.max(first.py_lines, 1);
+      const toolCount = last.tool_count ?? '?';
+      const testCount = last.test_count ?? '?';
+      const versCount = pts.filter(p => p.version).length;
       stats.style.display = 'grid';
       stats.innerHTML = [
-        ['📏', 'Code Growth',     `${first.py_lines.toLocaleString()} → ${last.py_lines.toLocaleString()} lines`, `×${mult.toFixed(1)} in ${pts.length} snapshots`],
+        ['📏', 'Code Growth',     `${first.py_lines.toLocaleString()} → ${last.py_lines.toLocaleString()} lines`, `×${codeMult.toFixed(1)} · ${last.py_lines - first.py_lines >= 0 ? '+' : ''}${(last.py_lines - first.py_lines).toLocaleString()}`],
         ['📖', 'Bible Growth',    `${(first.bible_bytes/1024).toFixed(1)} → ${(last.bible_bytes/1024).toFixed(1)} KB`,    `+${((last.bible_bytes-first.bible_bytes)/1024).toFixed(1)} KB philosophy`],
-        ['🧠', 'Self Growth',     `${(first.system_bytes/1024).toFixed(1)} → ${(last.system_bytes/1024).toFixed(1)} KB`,  `Generated ${data.generated_at ? new Date(data.generated_at).toLocaleDateString() : ''}`],
+        ['🧠', 'Self Growth',     `${(first.system_bytes/1024).toFixed(1)} → ${(last.system_bytes/1024).toFixed(1)} KB`,  `+${((last.system_bytes-first.system_bytes)/1024).toFixed(1)} KB self-concept`],
+        ['🛠️', 'Tools × Tests',   `${toolCount} tools · ${testCount} tests`, `${versCount} versions · ${pts.length} snapshots`],
       ].map(([icon, title, val, sub]) => `
         <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center">
           <div style="font-size:22px;margin-bottom:4px">${icon}</div>
@@ -177,13 +269,21 @@ async function loadEvolution() {
           <div style="font-size:11px;color:var(--accent);margin-top:2px">${sub}</div>
         </div>`).join('');
     }
+
+    // Version bar
+    if (vbar && versionMarkers.length) {
+      vbar.style.display = 'block';
+      vbar.innerHTML = versionMarkers.map(v =>
+        `<span class="version-marker" style="display:inline-block;background:#1f2937;color:#00d1ff;font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid #30363d;margin:0 2px">${v.text}</span>`
+      ).join(' ');
+    }
+
   } catch(e) {
     if (loading) { loading.style.display = 'block'; loading.textContent = `⚠ ${e.message}`; }
     console.error('Evolution load error:', e);
   }
 }
 
-// Auto-load when tab opened
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -196,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 def _git(args: list[str], timeout: int = 15) -> str:
-    """Run git command in repo dir, return stdout or empty string on error."""
     try:
         r = subprocess.run(
             ["git"] + args,
@@ -223,11 +322,23 @@ def _count_py_lines(commit_hash: str) -> tuple[int, int]:
 
 
 def _get_file_bytes(commit_hash: str, *candidate_paths: str) -> int:
-    """Return byte size of first existing file path in the commit, or 0."""
     for path in candidate_paths:
         content = _git(["show", f"{commit_hash}:{path}"], timeout=10)
         if content:
             return len(content.encode("utf-8"))
+    return 0
+
+
+def _get_file_content(commit_hash: str, path: str) -> str:
+    return _git(["show", f"{commit_hash}:{path}"], timeout=10)
+
+
+def _count_occurrences(commit_hash: str, pattern: str, *paths: str) -> int:
+    """Count regex pattern matches in a file at a given commit."""
+    for path in paths:
+        content = _get_file_content(commit_hash, path)
+        if content:
+            return len(re.findall(pattern, content))
     return 0
 
 
@@ -236,8 +347,38 @@ def _extract_version(msg: str) -> str | None:
     return m.group(1) if m else None
 
 
+def _count_principle_occurrences(content: str) -> int:
+    r"""Count unique P\d+ references in BIBLE.md content."""
+    matches = re.findall(r'P\d+', content)
+    return len(set(matches))
+
+
+def _count_tool_defs_in_commit(commit_hash: str) -> int:
+    """Count ToolEntry( occurrences in ouroboros/tools/ .py files at a commit."""
+    tree = _git(["ls-tree", "-r", "--name-only", commit_hash])
+    tool_files = [f for f in tree.splitlines()
+                  if f.startswith("ouroboros/tools/") and f.endswith(".py")]
+    total = 0
+    for f in tool_files:
+        content = _get_file_content(commit_hash, f)
+        total += content.count("ToolEntry(")
+    return total
+
+
+def _count_tests_in_commit(commit_hash: str) -> int:
+    """Count def test_ occurrences in tests/ .py files at a commit."""
+    tree = _git(["ls-tree", "-r", "--name-only", commit_hash])
+    test_files = [f for f in tree.splitlines()
+                  if f.startswith("tests/") and f.endswith(".py")]
+    total = 0
+    for f in test_files:
+        content = _get_file_content(commit_hash, f)
+        total += content.count("def test_")
+    return total
+
+
 def _collect_data() -> list[dict[str, Any]]:
-    """Walk git history, sample commits, extract metrics."""
+    """Walk git history, sample commits, extract all metrics."""
     log.info("evolution_stats: reading git log...")
     log_out = _git(["log", "--pretty=format:%H|%aI|%s", "--no-merges"])
     all_commits = []
@@ -253,7 +394,6 @@ def _collect_data() -> list[dict[str, Any]]:
     n = len(all_commits)
     log.info("evolution_stats: %d commits total", n)
 
-    # Select version-tagged commits + evenly spaced sample, always include first/last
     version_idx = {i for i, c in enumerate(all_commits) if _extract_version(c["msg"])}
     must_include = version_idx | {0, n - 1}
 
@@ -261,7 +401,6 @@ def _collect_data() -> list[dict[str, Any]]:
     spaced_idx = set(range(0, n, step))
     candidate = sorted(must_include | spaced_idx)
 
-    # Cap at MAX_POINTS while keeping all version commits
     if len(candidate) > MAX_POINTS:
         non_version = [i for i in candidate if i not in must_include]
         extra_slots = MAX_POINTS - len(must_include)
@@ -272,7 +411,6 @@ def _collect_data() -> list[dict[str, Any]]:
             extra = []
         candidate = sorted(must_include | set(extra))
 
-    # Process in chronological order (oldest → newest)
     selected = list(reversed(candidate))
     log.info("evolution_stats: processing %d sampled commits...", len(selected))
     t0 = time.time()
@@ -282,8 +420,18 @@ def _collect_data() -> list[dict[str, Any]]:
         c = all_commits[idx]
         h = c["hash"]
         py_lines, module_count = _count_py_lines(h)
-        bible_bytes = _get_file_bytes(h, "BIBLE.md", "prompts/BIBLE.md")
+        bible_content = _get_file_content(h, "BIBLE.md")
+        if not bible_content:
+            bible_content = _get_file_content(h, "prompts/BIBLE.md")
+        bible_bytes = len(bible_content.encode("utf-8")) if bible_content else 0
+        principle_count = _count_principle_occurrences(bible_content) if bible_content else 0
         system_bytes = _get_file_bytes(h, "prompts/SYSTEM.md", "SYSTEM.md")
+        consciousness_bytes = _get_file_bytes(
+            h, "prompts/CONSCIOUSNESS.md", "CONSCIOUSNESS.md"
+        )
+        tool_count = _count_tool_defs_in_commit(h)
+        test_count = _count_tests_in_commit(h)
+
         points.append({
             "ts": c["ts"],
             "hash": h[:8],
@@ -291,8 +439,12 @@ def _collect_data() -> list[dict[str, Any]]:
             "version": _extract_version(c["msg"]),
             "py_lines": py_lines,
             "module_count": module_count,
+            "tool_count": tool_count,
+            "test_count": test_count,
+            "principle_count": principle_count,
             "bible_bytes": bible_bytes,
             "system_bytes": system_bytes,
+            "consciousness_bytes": consciousness_bytes,
         })
         if (pos + 1) % 10 == 0:
             log.info(
@@ -315,19 +467,16 @@ def _patch_app_html(webapp_dir: Path) -> str:
     if 'data-tab="evolution"' in html:
         return "already patched"
 
-    # 1. Insert nav item before settings nav item
     settings_nav = '<div class="nav-item" data-tab="settings">'
     if settings_nav not in html:
         return "nav anchor not found"
     html = html.replace(settings_nav, _EVOLUTION_NAV + "\n      " + settings_nav)
 
-    # 2. Insert tab content before settings tab content
     settings_tab_marker = '<div class="tab-content" id="tab-settings">'
     if settings_tab_marker not in html:
         return "settings tab not found"
     html = html.replace(settings_tab_marker, _EVOLUTION_TAB + "    " + settings_tab_marker)
 
-    # 3. Add Chart.js + evolution JS before </body>
     if "chart.js" not in html.lower():
         html = html.replace("</body>", _EVOLUTION_JS + "\n</body>")
 
@@ -379,6 +528,49 @@ def _push_to_github(data: dict[str, Any]) -> str:
     return f"error: {put_r.status_code} — {put_r.text[:200]}"
 
 
+def _push_dashboard_to_github() -> str:
+    """Push the standalone dashboard HTML to docs/dashboard.html via GitHub API."""
+    import base64
+
+    import requests
+
+    token = os.environ.get("GITHUB_TOKEN", "").strip()
+    if not token:
+        return "error: GITHUB_TOKEN not found"
+
+    user = os.environ.get("GITHUB_USER", "")
+    repo = os.environ.get("GITHUB_REPO", "")
+    repo_slug = f"{user}/{repo}"
+    file_path = "docs/dashboard.html"
+    branch = os.environ.get("GITHUB_BRANCH", "ouroboros")
+
+    url = f"https://api.github.com/repos/{repo_slug}/contents/{file_path}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+
+    sha = None
+    r = requests.get(url, headers=headers, timeout=15)
+    if r.status_code == 200:
+        sha = r.json().get("sha")
+
+    content_b64 = base64.b64encode(_DASHBOARD_HTML.encode("utf-8")).decode("utf-8")
+
+    payload = {
+        "message": "evolution: update rich dashboard",
+        "content": content_b64,
+        "branch": branch,
+    }
+    if sha:
+        payload["sha"] = sha
+
+    put_r = requests.put(url, headers=headers, json=payload, timeout=15)
+    if put_r.status_code in [200, 201]:
+        return f"pushed dashboard to {file_path}"
+    return f"error: {put_r.status_code} — {put_r.text[:200]}"
+
+
 def generate_evolution_stats() -> str:
     """Collect git-based evolution metrics and push to docs/evolution.json.
 
@@ -394,6 +586,9 @@ def generate_evolution_stats() -> str:
         "max_py_lines": max((p["py_lines"] for p in points), default=0),
         "max_bible_bytes": max((p["bible_bytes"] for p in points), default=0),
         "max_system_bytes": max((p["system_bytes"] for p in points), default=0),
+        "max_consciousness_bytes": max(
+            (p.get("consciousness_bytes", 0) for p in points), default=0
+        ),
         "points": points,
     }
 
@@ -402,8 +597,36 @@ def generate_evolution_stats() -> str:
     return (
         f"evolution_stats: {result} | "
         f"span={points[0]['ts'][:10]}…{last['ts'][:10]} | "
-        f"py_lines={last['py_lines']} bible={last['bible_bytes']}B system={last['system_bytes']}B"
+        f"py_lines={last['py_lines']} tools={last.get('tool_count','?')} "
+        f"tests={last.get('test_count','?')} "
+        f"bible={last['bible_bytes']}B system={last['system_bytes']}B"
     )
+
+
+def generate_evolution_dashboard() -> str:
+    """Generate and push the rich standalone evolution dashboard HTML.
+
+    Produces a multi-chart dashboard (growth, capabilities, velocity, concept)
+    with milestone markers, stats cards, and interactive tooltips.
+    Pushes to docs/dashboard.html via GitHub API.
+    """
+    result = _push_dashboard_to_github()
+    return f"evolution_dashboard: {result}"
+
+
+def generate_evolution_webapp() -> str:
+    """Patch the webapp app.html with the Evolution Time-Lapse tab.
+
+    Safe to call multiple times — detects if already patched.
+    """
+    webapp_dir = Path(
+        os.environ.get(
+            "OUROBOROS_WEBAPP_DIR",
+            str(Path.home() / "ouroboros_webapp" / "webapp"),
+        )
+    )
+    result = _patch_app_html(webapp_dir)
+    return f"evolution_webapp: {result}"
 
 
 def get_tools():
@@ -416,10 +639,11 @@ def get_tools():
             {
                 "name": "generate_evolution_stats",
                 "description": (
-                    "Generate Evolution Time-Lapse data from git history and push to the webapp dashboard. "
-                    "Collects per-commit metrics across three axes: "
-                    "Technical (Python lines of code), Philosophical (BIBLE.md size), "
-                    "Self-Concept (SYSTEM.md size). "
+                    "Generate Evolution Time-Lapse data from git history and push to the "
+                    "webapp dashboard. Collects per-commit metrics: "
+                    "Technical (Python lines, tools, tests, modules), "
+                    "Philosophical (BIBLE.md size + principle count), "
+                    "Self-Concept (SYSTEM.md size), Consciousness (CONSCIOUSNESS.md size). "
                     "Pushes docs/evolution.json via GitHub API. "
                     "Safe to call anytime; takes 15-30s for full history scan."
                 ),
@@ -430,5 +654,40 @@ def get_tools():
                 },
             },
             lambda ctx, **_: generate_evolution_stats(),
-        )
+        ),
+        ToolEntry(
+            "generate_evolution_dashboard",
+            {
+                "name": "generate_evolution_dashboard",
+                "description": (
+                    "Generate a rich standalone evolution dashboard HTML with 4 Chart.js panels "
+                    "(growth, capabilities, velocity, concept breakdown), milestone markers, "
+                    "and interactive tooltips. Pushes to docs/dashboard.html via GitHub API. "
+                    "Run after generate_evolution_stats so evolution.json is current."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                },
+            },
+            lambda ctx, **_: generate_evolution_dashboard(),
+        ),
+        ToolEntry(
+            "generate_evolution_webapp",
+            {
+                "name": "generate_evolution_webapp",
+                "description": (
+                    "Patch the webapp's app.html with the Evolution Time-Lapse tab "
+                    "(Chart.js line chart with version markers + stats cards). "
+                    "Safe to call multiple times."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                },
+            },
+            lambda ctx, **_: generate_evolution_webapp(),
+        ),
     ]

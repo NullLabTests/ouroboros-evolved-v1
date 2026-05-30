@@ -257,6 +257,68 @@ def test_goal_manager_summary_for_context(temp_drive: pathlib.Path):
     assert "critical" in summary
 
 
+def test_goal_manager_delete(temp_drive: pathlib.Path):
+    from ouroboros.goals import GoalManager
+    mgr = GoalManager(drive_root=temp_drive)
+    gid = mgr.add_goal("Delete Me", "Will be deleted")
+    assert mgr.get_goal(gid) is not None
+    assert mgr.delete_goal(gid) is True
+    assert mgr.get_goal(gid) is None
+    # Double-delete should return False
+    assert mgr.delete_goal(gid) is False
+
+
+def test_goal_manager_delete_wipes_persistence(temp_drive: pathlib.Path):
+    from ouroboros.goals import GoalManager
+    mgr = GoalManager(drive_root=temp_drive)
+    gid = mgr.add_goal("Persistent Delete", "Will be deleted permanently")
+    assert mgr.delete_goal(gid) is True
+
+    mgr2 = GoalManager(drive_root=temp_drive)
+    assert mgr2.get_goal(gid) is None
+
+
+def test_goal_manager_prefix_matching(temp_drive: pathlib.Path):
+    from ouroboros.goals import GoalManager
+    mgr = GoalManager(drive_root=temp_drive)
+    gid = mgr.add_goal("Prefix Test", "Test prefix matching")
+    # list_goals includes the full ID, get_goal only accepts exact ID
+    listing = mgr.list_goals()
+    assert gid[:8] in listing
+    # Full ID lookup works
+    goal = mgr.get_goal(gid)
+    assert goal is not None
+    assert goal.id == gid
+
+
+def test_goal_manager_notes_append(temp_drive: pathlib.Path):
+    from ouroboros.goals import GoalManager
+    mgr = GoalManager(drive_root=temp_drive)
+    gid = mgr.add_goal("Notes Test", "Initial description")
+    assert mgr.update_goal(gid, notes="First note")
+    goal = mgr.get_goal(gid)
+    assert "First note" in goal.notes
+    assert mgr.update_goal(gid, notes="Second note")
+    goal = mgr.get_goal(gid)
+    assert "Second note" in goal.notes
+    # No leading blank line when notes were previously empty
+    assert not goal.notes.startswith("\n")
+
+
+def test_goal_manager_milestone_bounds(temp_drive: pathlib.Path):
+    from ouroboros.goals import GoalManager
+    mgr = GoalManager(drive_root=temp_drive)
+    gid = mgr.add_goal("Bounds Test", "Test milestone bounds", milestones=["A", "B"])
+    # Clamp below zero
+    assert mgr.update_goal(gid, milestone_progress=-5)
+    goal = mgr.get_goal(gid)
+    assert goal.milestone_progress == 0
+    # Clamp above max
+    assert mgr.update_goal(gid, milestone_progress=99)
+    goal = mgr.get_goal(gid)
+    assert goal.milestone_progress == 2
+
+
 # ---------------------------------------------------------------------------
 # Core tool registry: new tools are auto-discovered
 # ---------------------------------------------------------------------------
@@ -283,6 +345,58 @@ def test_new_tools_in_registry(temp_drive: pathlib.Path):
 # ---------------------------------------------------------------------------
 # Consciousness whitelist includes new tools
 # ---------------------------------------------------------------------------
+
+def test_create_tool_name_too_long(mock_ctx):
+    from ouroboros.tools.tool_creator import _CUSTOM_TOOLS, _create_tool
+    _CUSTOM_TOOLS.clear()
+    source = 'def f(ctx): return "ok"'
+    result = _create_tool(mock_ctx, name="a" * 81, source=source)
+    assert "Error" in result
+    assert "too long" in result
+
+
+def test_create_tool_source_too_long(mock_ctx):
+    from ouroboros.tools.tool_creator import _CUSTOM_TOOLS, _create_tool
+    _CUSTOM_TOOLS.clear()
+    result = _create_tool(mock_ctx, name="huge_tool", source="x " * 50001)
+    assert "Error" in result
+    assert "too long" in result
+
+
+def test_created_tools_inject_via_public_api(mock_ctx):
+    from ouroboros.tools.registry import ToolRegistry
+    from ouroboros.tools.tool_creator import _CUSTOM_TOOLS, _create_tool, _inject_created_tools
+    _CUSTOM_TOOLS.clear()
+
+    source = '''def api_tool(ctx) -> str:\n    return "ok"\n'''
+    _create_tool(mock_ctx, name="api_tool", source=source)
+    assert "api_tool" in _CUSTOM_TOOLS
+
+    # Create a minimal registry to inject into
+    reg = ToolRegistry(repo_dir=mock_ctx.repo_dir, drive_root=mock_ctx.drive_root)
+    _inject_created_tools(reg)
+    assert "api_tool" in reg.available_tools()
+
+
+def test_group_evolution_short_name_mapping():
+    from ouroboros.tools.registry import ToolContext
+    import ouroboros.tools.group_evolution as tg
+    original = tg.group_evolution_session
+
+    captured = None
+    def fake_session(topic, archetypes=None, model=None):
+        nonlocal captured
+        captured = archetypes
+        return "fake report", 0.0
+
+    tg.group_evolution_session = fake_session
+    try:
+        ctx = MagicMock(spec=ToolContext)
+        tg._run_group_evolution(ctx, topic="test", archetypes="minimalist")
+        assert captured == ["the_minimalist"], f"Got {captured}"
+    finally:
+        tg.group_evolution_session = original
+
 
 def test_consciousness_whitelist():
     """Verify consciousness can use new tools."""
