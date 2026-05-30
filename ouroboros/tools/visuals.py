@@ -343,7 +343,7 @@ def _health_html() -> str:
         for t in created_tools[:18]
     )
 
-    completed_pct = round(100 * n_completed / max(total_goals, 1)) if total_goals else 0
+    completed_pct = round(100 * len(completed_goals) / max(total_goals, 1)) if total_goals else 0
 
     html = f"""<!DOCTYPE html>
 <html lang="en">

@@ -148,8 +148,9 @@ def test_make_timeout_result(temp_logs: pathlib.Path):
 
 
 def test_check_budget_limits_none_budget(temp_logs):
-    from ouroboros.loop import _check_budget_limits
     import queue
+
+    from ouroboros.loop import _check_budget_limits
     result = _check_budget_limits(
         budget_remaining_usd=None,
         accumulated_usage={},
@@ -168,8 +169,9 @@ def test_check_budget_limits_none_budget(temp_logs):
 
 
 def test_check_budget_limits_under_threshold(temp_logs):
-    from ouroboros.loop import _check_budget_limits
     import queue
+
+    from ouroboros.loop import _check_budget_limits
     result = _check_budget_limits(
         budget_remaining_usd=10.0,
         accumulated_usage={"cost": 0.5},
@@ -188,8 +190,9 @@ def test_check_budget_limits_under_threshold(temp_logs):
 
 
 def test_check_budget_limits_hard_stop(temp_logs):
-    from ouroboros.loop import _check_budget_limits
     import queue
+
+    from ouroboros.loop import _check_budget_limits
     llm = MagicMock()
     llm.chat.return_value = ({"content": "Budget exhausted."}, {})
 
